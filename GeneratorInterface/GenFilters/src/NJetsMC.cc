@@ -63,13 +63,16 @@ private:
   edm::EDGetTokenT<reco::GenJetCollection> GenToken_;
   Int_t  njets_;
   double minpt_;
+  bool match_exact_njets_;
 
 };
 
 NJetsMC::NJetsMC(const edm::ParameterSet& iConfig):
   GenToken_(consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("GenTag"))),
   njets_(iConfig.getParameter<int32_t>("Njets")),
-  minpt_(iConfig.getParameter<double>("MinPt"))
+  minpt_(iConfig.getParameter<double>("MinPt")),
+  match_exact_njets_(iConfig.getParameter<bool>  ("MatchExactNjets"))
+
 {
 }
 
@@ -93,9 +96,10 @@ bool NJetsMC::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        reco::GenJet myJet = reco::GenJet(*iJet);
 
        if(myJet.pt() > minpt_) ++count;
-     }
-
-   if( count >= njets_ )
+     } 
+   if(match_exact_njets_ && count == njets_)
+      result = true;
+   if(!match_exact_njets_ && count >= njets_ )
       result = true;
 
    return result;
