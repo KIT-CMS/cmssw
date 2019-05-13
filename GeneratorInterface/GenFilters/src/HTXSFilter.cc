@@ -65,13 +65,9 @@ bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
       edm::LogInfo ("HTXSFilter") << "Selection of HTXS flags to filter is empty. Filtering will not be applied." << std::endl;
       return true;
    }
-   std::cout<<cat->stage1_1_cat_pTjet30GeV<<std::endl;
    if(std::find(htxs_flags.begin(), htxs_flags.end(), cat->stage1_1_cat_pTjet30GeV) != htxs_flags.end()) {
-      std::cout<<"Event passes HTXSFilter"<<std::endl;
-
       return true;
    } else {
-      std::cout<<"Event rejected by HTXSFilter"<<std::endl;
       return false;
    }
 }
