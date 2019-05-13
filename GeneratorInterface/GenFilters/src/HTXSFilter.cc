@@ -57,7 +57,6 @@ HTXSFilter::~HTXSFilter()
 // ------------ method called on each new Event  ------------
 bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-   std::cout<<"Starting HTXSFilter"<<std::endl;
    using namespace edm;
    Handle<HTXS::HiggsClassification> cat;
    iEvent.getByToken(token_, cat);

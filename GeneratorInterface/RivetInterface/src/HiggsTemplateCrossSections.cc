@@ -270,8 +270,6 @@ namespace Rivet {
        * Step 4.
        *   Classify and save output
        */
-      std::cout << "Higgs pT: "<< cat.higgs.pt()<<std::endl;
-      std::cout << "Higgs y: "<< cat.higgs.rapidity()<<std::endl;
 
       std::ofstream outfile;
       outfile.open("higgspT.dat", std::ios_base::app);
