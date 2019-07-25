@@ -54,6 +54,9 @@ public:
 	data_[i].print(out); 
       }
   }
+  const std::vector<S>& data() const { return data_; }
+  void setData(const std::vector<S>& d) { data_ = d; }
+
 
 
 private:

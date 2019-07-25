@@ -221,6 +221,15 @@
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
 
+    <!-- ValueMap<reco::GsfTrack> -->
+  <class name="edm::ValueMap<reco::GsfTrackRefVector>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::GsfTrackRefVector> >" />
+  <!--<class name="edm::Ref<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
+  <class name="edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>-->
+  <class name="std::vector<edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> > >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> > >"/>
+
   <class name="reco::GsfElectron" ClassVersion="19">
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>
