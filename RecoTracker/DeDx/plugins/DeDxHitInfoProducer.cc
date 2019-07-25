@@ -47,7 +47,6 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig):
    edm::LogError("DeDxHitsProducer") << "No Pixel Hits NOR Strip Hits will be saved.  Running this module is useless";
 }
 
-
 DeDxHitInfoProducer::~DeDxHitInfoProducer(){}
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -65,60 +64,58 @@ void  DeDxHitInfoProducer::beginRun(edm::Run const& run, const edm::EventSetup& 
 
 
 void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{  
+{
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
-
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-
   // creates the output collection
   std::auto_ptr<reco::DeDxHitInfoCollection> resultdedxHitColl(new reco::DeDxHitInfoCollection);
-
   std::vector<int> indices;
-
   TrajTrackAssociationCollection::const_iterator cit;
   if(useTrajectory)cit = trajTrackAssociationHandle->begin();
-  for(unsigned int j=0;j<trackCollection.size();j++){            
+  for(unsigned int j=0;j<trackCollection.size();j++){     
      const reco::Track& track = trackCollection[j];
-
      //track selection
      if(track.pt()<minTrackPt ||  std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
         cit++;
         indices.push_back(-1);
         continue;
+
      }
 
      reco::DeDxHitInfo hitDeDxInfo;
+
+//      if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
+//         const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
+//         const vector<TrajectoryMeasurement> & measurements = traj->measurements();
+//         for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
+//            const TrajectoryStateOnSurface& trajState=it->updatedState();
+//            if( !trajState.isValid()) continue;
+
+//            const TrackingRecHit* recHit=(*it->recHit()).hit();
+//            if(!recHit)continue;
+//            const LocalVector& trackDirection = trajState.localDirection();
+//            float cosine = trackDirection.z()/trackDirection.mag();           
+
+//            processHit(recHit, trajState.localMomentum().mag(), cosine, hitDeDxInfo, trajState.localPosition());
+//         }
+
+//      }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
+//         for(unsigned int h=0;h<track.recHitsSize();h++){
+//            const TrackingRecHit* recHit = &(*(track.recHit(h)));
+//            auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
+
+//            if(!thit.isValid())continue;//make sure it's a tracker hit
+
+//            const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();  
+       
+//            float cosine = (track.px()*ModuleNormal.x()+track.py()*ModuleNormal.y()+track.pz()*ModuleNormal.z())/track.p();
  
-     if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
-        const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
-        const vector<TrajectoryMeasurement> & measurements = traj->measurements();
-        for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-           const TrajectoryStateOnSurface& trajState=it->updatedState();
-           if( !trajState.isValid()) continue;
-     
-           const TrackingRecHit* recHit=(*it->recHit()).hit();
-           if(!recHit)continue;
-           const LocalVector& trackDirection = trajState.localDirection();
-           float cosine = trackDirection.z()/trackDirection.mag();           
-
-           processHit(recHit, trajState.localMomentum().mag(), cosine, hitDeDxInfo, trajState.localPosition());
-        }
-
-     }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
-        for(unsigned int h=0;h<track.recHitsSize();h++){
-           const TrackingRecHit* recHit = &(*(track.recHit(h)));
-           auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
-           if(!thit.isValid())continue;//make sure it's a tracker hit
-
-           const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();         
-           float cosine = (track.px()*ModuleNormal.x()+track.py()*ModuleNormal.y()+track.pz()*ModuleNormal.z())/track.p();
- 
-           processHit(recHit, track.p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
-        } 
-     }
+//            processHit(recHit, track.p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
+//         } 
+//      }
 
      indices.push_back(resultdedxHitColl->size());
      resultdedxHitColl->push_back(hitDeDxInfo);
@@ -130,6 +127,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   //create map passing the handle to the matched collection
   std::auto_ptr<reco::DeDxHitInfoAss> dedxMatch(new reco::DeDxHitInfoAss(dedxHitCollHandle));
+
   reco::DeDxHitInfoAss::Filler filler(*dedxMatch);  
   filler.insert(trackCollectionHandle, indices.begin(), indices.end()); 
   filler.fill();
