@@ -291,7 +291,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	       it++;
 	     }
 
-	   if (maskedBxs.size()>0){
+	    if (maskedBxs.size()>0){
 	     LogDebug("l1t|Global") << "Algo: "<< algBit << "\t" << algName << " masked\n";
 	     for ( unsigned int ibx=0; ibx< maskedBxs.size(); ibx++){
 	       // std::cout << "\t" << maskedBxs.at(ibx);
@@ -299,6 +299,12 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	     }
 	   }
 	 }
+       } else {
+	 //cout << "Error empty AlgBlk recovered.\n";
+       }
+     } else {
+       //cout<< "Error no valid uGT Algorithm Data with Token provided " << endl;
+     }
 }
 
 void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
