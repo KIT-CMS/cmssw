@@ -441,8 +441,8 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 	process.merge_step += process.genForPF2PATSequence
 
 	process.schedule.insert(0,process.merge_step)
-    process.slimmedPatTrigger.triggerResults =  cms.InputTag("TriggerResults","","SIMembedding")
-	 # process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
+	# process.slimmedPatTrigger.triggerResults =  cms.InputTag("TriggerResults","","SIMembedding")
+	# process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
 
 	process = customisoptions(process)
 	return modify_outputModules(process, [keepMerged(dataTier)])
