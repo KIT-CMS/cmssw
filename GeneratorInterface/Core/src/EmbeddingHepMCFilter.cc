@@ -68,10 +68,13 @@ EmbeddingHepMCFilter::filter(const HepMC::GenEvent* evt)
         else if (std::abs((*particle)->pdg_id()) == muonPDGID_  && mom_id == ZPDGID_) // Also handle the option when Z-> mumu
 	{
           reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector) (*particle)->momentum();
-	  DecayChannel_.fill(TauDecayMode::Muon); // take the muon cuts
+	    DecayChannel_.fill(TauDecayMode::Muon); // take the muon cuts
           p4VisPair_.push_back(p4Vis);
-	}
-
+    }   else if (std::abs((*particle)->pdg_id()) == electronPDGID_  && mom_id == ZPDGID_) {// Also handle the option when Z-> ee
+          reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector) (*particle)->momentum();
+          DecayChannel_.fill(TauDecayMode::Electron); // take the electron cuts
+          p4VisPair_.push_back(p4Vis);
+      }
     }
     // Putting DecayChannel_ in default convention:
     // For mixed decay channels use the Electron_Muon, Electron_Hadronic, Muon_Hadronic convention.
