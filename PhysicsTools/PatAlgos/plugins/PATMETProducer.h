@@ -67,6 +67,7 @@ namespace pat {
       pat::PATUserDataHelper<pat::MET>      userDataHelper_;
 
     //MET Significance
+    bool isEmbeddedSample_;
     bool calculateMETSignificance_;
     metsig::METSignificance* metSigAlgo_;
     edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;

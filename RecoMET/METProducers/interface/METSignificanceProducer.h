@@ -63,6 +63,7 @@ namespace cms
       std::string jetSFType_;
       std::string jetResPtType_;
       std::string jetResPhiType_;
+      bool isEmbeddedSample_;
  
       metsig::METSignificance* metSigAlgo_;
 

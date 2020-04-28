@@ -90,6 +90,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Exclude jets and PF candidates with EE noise characteristics (fix for 2017 run)", Type=bool)
         self.addParameter(self._defaultParameters,'fixEE2017Params', {'userawPt': True, 'ptThreshold': 50.0, 'minEtaThreshold': 2.65, 'maxEtaThreshold': 3.139},
                           "Parameters dict for fixEE2017: userawPt, ptThreshold, minEtaThreshold, maxEtaThreshold", Type=dict)
+        self.addParameter(self._defaultParameters, 'isEmbeddedSample', False,
+                          "Is set, tau embedded samples are produced", Type=bool)
 
         #private parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
@@ -135,6 +137,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  onMiniAOD               =None,
                  fixEE2017               =None,
                  fixEE2017Params         =None,
+                 isEmbeddedSample              =None,
                  postfix                 =None):
         electronCollection = self.initializeInputTag(electronCollection, 'electronCollection')
         photonCollection = self.initializeInputTag(photonCollection, 'photonCollection')
@@ -208,6 +211,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             fixEE2017 = self._defaultParameters['fixEE2017'].value
         if fixEE2017Params is None :
             fixEE2017Params = self._defaultParameters['fixEE2017Params'].value
+        if isEmbeddedSample is None :
+            isEmbeddedSample = self._defaultParameters['isEmbeddedSample'].value
 
         self.setParameter('metType',metType),
         self.setParameter('correctionLevel',correctionLevel),
@@ -241,7 +246,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('postfix',postfix),
         self.setParameter('fixEE2017',fixEE2017),
         self.setParameter('fixEE2017Params',fixEE2017Params),
-
+        self.setParameter('isEmbeddedSample',isEmbeddedSample),
         #if mva/puppi MET, autoswitch to std jets
         if metType == "MVA" or metType == "Puppi":
             self.setParameter('CHS',False),
@@ -309,6 +314,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         postfix                 = self._parameters['postfix'].value
         fixEE2017               = self._parameters['fixEE2017'].value
         fixEE2017Params         = self._parameters['fixEE2017Params'].value
+        isEmbeddedSample              = self._parameters['isEmbeddedSample'].value
         
         #prepare jet configuration
         jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
@@ -605,6 +611,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
             getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
+            getattr(process, "pat"+metType+"Met"+postfix).isEmbeddedSample = self._parameters["isEmbeddedSample"].value
             if postfix=="NoHF":
                 getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
             if self._parameters["runOnData"].value:
@@ -649,6 +656,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #create the main MET producer
         metModName = "pat"+metType+"Met"+corScheme+postfix
+        # add embedded flag
+        getattr(process, "pat"+metType+"Met"+postfix).isEmbeddedSample = self._parameters["isEmbeddedSample"].value
 
         sequenceName=""
         corMetProducer=None
@@ -1368,6 +1377,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
                 addToProcessAndTask('patMETs'+postfix, getattr(process,'patMETs' ).clone(), process, task)
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
+                getattr(process, "pat"+metType+"Met"+postfix).isEmbeddedSample = self._parameters["isEmbeddedSample"].value
                 getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
                 if postfix=="NoHF":
                     getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(False)
@@ -1932,6 +1942,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                computeMETSignificance=True,
                                fixEE2017=False,
                                fixEE2017Params=None,
+                               isEmbeddedSample=False,
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -1965,6 +1976,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
+                                      isEmbeddedSample=isEmbeddedSample,
                                       )
     
     #MET T1+Txy / Smear
@@ -1996,6 +2008,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
+                                      isEmbeddedSample=isEmbeddedSample,
                                       )
     #MET T1+Smear + uncertainties
     runMETCorrectionsAndUncertainties(process, metType=metType,
@@ -2026,4 +2039,5 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
+                                      isEmbeddedSample=isEmbeddedSample,
                                       )

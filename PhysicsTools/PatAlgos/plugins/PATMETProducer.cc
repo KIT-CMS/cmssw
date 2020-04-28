@@ -24,6 +24,7 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
   genMETToken_    = mayConsume<edm::View<reco::GenMET> >(iConfig.getParameter<edm::InputTag>("genMETSource"));
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
+  
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -44,8 +45,10 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
 
   // MET Significance
   calculateMETSignificance_ = iConfig.getParameter<bool>("computeMETSignificance");
+  isEmbeddedSample_ = iConfig.getParameter<bool>("isEmbeddedSample");
   if(calculateMETSignificance_)
     {
+      
       metSigAlgo_ = new metsig::METSignificance(iConfig);
       rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
       jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
@@ -191,7 +194,7 @@ PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& 
 
   //Compute the covariance matrix and fill it
   reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, inputCands,
-						       *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
+						       *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered, isEmbeddedSample_);
 
   return cov;
 }

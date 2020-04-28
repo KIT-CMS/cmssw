@@ -31,6 +31,7 @@ namespace cms
     jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
     jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
+    isEmbeddedSample_ = iConfig.getParameter<bool>("isEmbeddedSample");
 
     metSigAlgo_ = new metsig::METSignificance(iConfig);
 
@@ -90,7 +91,8 @@ namespace cms
    // compute the significance
    //
    double sumPtUnclustered = 0;
-   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
+   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered, isEmbeddedSample_);
+   
    double sig  = metSigAlgo_->getSignificance(cov, met);
 
    auto significance = std::make_unique<double>();

@@ -84,6 +84,7 @@ namespace cms
       std::string jetResPtType_;
       std::string jetResPhiType_;
       edm::EDGetTokenT<double> rhoToken_;
+      bool isEmbeddedSample_;
   };
 }
 

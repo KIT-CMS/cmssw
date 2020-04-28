@@ -57,5 +57,6 @@ patMETs = cms.EDProducer("PATMETProducer",
     srcJetResPt = cms.string('AK4PFchs_pt'),
     srcJetResPhi = cms.string('AK4PFchs_phi'),
     srcRho = cms.InputTag('fixedGridRhoAll'),
+    isEmbeddedSample = cms.bool(False),
     parameters = METSignificanceParams
 )
