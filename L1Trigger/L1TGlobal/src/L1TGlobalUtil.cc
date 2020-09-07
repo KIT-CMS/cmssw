@@ -43,8 +43,8 @@ l1t::L1TGlobalUtil::L1TGlobalUtil() :
     m_PreScaleColumn = 0;
     m_readPrescalesFromFile = false;
 
-    m_prescaleFactorsAlgoTrig = nullptr;
-    m_triggerMaskAlgoTrig = nullptr;
+    m_prescaleFactorsAlgoTrig = 0ULL;
+    m_triggerMaskAlgoTrig = 0ULL;
 }
 
 l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
@@ -120,9 +120,9 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 	// clear and dimension
 	resetPrescaleVectors();
 	resetMaskVectors();
-	m_PreScaleColumn = 0;
-	m_numberOfPreScaleColumns = 0;
-	m_numberPhysTriggers = 0;
+	// m_PreScaleColumn = 0;
+	// m_numberOfPreScaleColumns = 0;
+	// m_numberPhysTriggers = 0;
 
 	edm::ESHandle< L1TGlobalPrescalesVetos > l1GtPrescalesVetoes;
 	evSetup.get< L1TGlobalPrescalesVetosRcd >().get( l1GtPrescalesVetoes );
@@ -130,7 +130,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 	m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
 
 	m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
-	m_numberOfPreScaleColumns = m_prescaleFactorsAlgoTrig->size();
+	// m_numberOfPreScaleColumns = m_prescaleFactorsAlgoTrig->size();
 	m_numberPhysTriggers = (*m_prescaleFactorsAlgoTrig)[0].size(); // assumes all prescale columns are the same length
 
 	m_triggerMaskAlgoTrig   = &(m_l1GtPrescalesVetoes->triggerAlgoBxMask());
@@ -154,13 +154,13 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
     }
 
     //Protect against poor prescale column choice (I don't think there is a way this happen as currently structured)
-    if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size()) {
+    if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {
       LogTrace("l1t|Global")
-	<< "\nNo Prescale Set: " << m_PreScaleColumn
-	<< "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()
-	<< "\nSetting prescale column to 0"
-	<< std::endl;
-      m_PreScaleColumn = 0;
+      << "\nNo Prescale Set: " << m_PreScaleColumn
+      << "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()
+      << "\nSetting prescale column to 0"
+      << std::endl;
+          m_PreScaleColumn = 0;
     }
     //std::cout << "Using prescale column: " << m_PreScaleColumn << std::endl;
     const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
@@ -196,7 +196,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 	  it++;
 	}
 
-      if (!maskedBxs.empty()){
+      if (maskedBxs.size()>0){
 	LogDebug("l1t|Global") << "i Algo: "<< algBit << "\t" << algName << " masked\n";
 	for ( unsigned int ibx=0; ibx< maskedBxs.size(); ibx++){
 	  // std::cout << "\t" << maskedBxs.at(ibx);
@@ -226,6 +226,15 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	 if (! m_readPrescalesFromFile){
 	   m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
 
+    //Protect against poor prescale column choice (I don't think there is a way this happen as currently structured)
+    if(m_PreScaleColumn >= m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {
+      LogTrace("l1t|Global")
+        << "\nNo Prescale Set: " << m_PreScaleColumn
+        << "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()
+        << "\nSetting prescale column to 0"
+        << std::endl;
+      m_PreScaleColumn = 0;
+    }
 	   // Fix for MC prescale column being set to index+1 in early versions of uGT emulator
 	   if (iEvent.run() == 1){
 	     if (m_prescaleFactorsAlgoTrig->size() == 1 && m_PreScaleColumn ==1) m_PreScaleColumn = 0;
@@ -328,7 +337,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
       int NumPrescaleSets = 0;
       for( int iCol=0; iCol<int(vec.size()); iCol++ ){
-	if( !vec[iCol].empty() ){
+	if( vec[iCol].size() > 0 ){
 	  int firstRow = vec[iCol][0];
 
 	  if( firstRow >= 0 ) NumPrescaleSets++;
@@ -355,7 +364,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 	  if( algoBit < m_numberPhysTriggers ){
 	    for( int iSet=0; iSet<int(vec.size()); iSet++ ){
 	      int useSet = -1;
-	      if( !vec[iSet].empty() ){
+	      if( vec[iSet].size() > 0 ){
 		useSet = vec[iSet][0];
 	      }
 	      useSet -= 1;

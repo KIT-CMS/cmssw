@@ -425,7 +425,6 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
       // need an ordered set to loop on it in the correct order
       for (const auto& tc : triggerGeometry_->getOrderedTriggerCellsFromModule(module_hits.first)) {
         TC_simhit_energies.emplace(tc, 0);
-        for (const auto& cell : triggerGeometry_->getCellsFromTriggerCell(tc)) {
           double simenergy = simhit_energies[cell];
           TC_simhit_energies.at(tc) += simenergy;
         }
