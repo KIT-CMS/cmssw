@@ -60,7 +60,7 @@ class EmbeddingHltPixelVerticesProducer : public edm::stream::EDProducer<> {
 
 EmbeddingHltPixelVerticesProducer::EmbeddingHltPixelVerticesProducer(const edm::ParameterSet& iConfig)
 {
-  
+
   vertexPositionLabel = edm::InputTag("externalLHEProducer","vertexPosition");
   consumes<math::XYZTLorentzVectorD>(vertexPositionLabel);
   produces<reco::VertexCollection>();
@@ -83,7 +83,7 @@ EmbeddingHltPixelVerticesProducer::produce(edm::Event& iEvent, const edm::EventS
    std::unique_ptr<reco::VertexCollection> embeddingVertex(new reco::VertexCollection);
    Handle<math::XYZTLorentzVectorD> vertex_position;
    iEvent.getByLabel(vertexPositionLabel, vertex_position); 
-   edm::LogPrint("") << "externalLHEProducer Vertex (" << vertex_position.product()->x() << ","  << vertex_position.product()->y() << "," <<  vertex_position.product()->z() << ")";
+  //  edm::LogPrint("") << "externalLHEProducer Vertex (" << vertex_position.product()->x() << ","  << vertex_position.product()->y() << "," <<  vertex_position.product()->z() << ")";
     math::XYZPoint genVertex = math::XYZPoint(vertex_position.product()->x(),vertex_position.product()->y(),vertex_position.product()->z());
     math::Error<3>::type Error;
     // additionally, get the general Tracks:

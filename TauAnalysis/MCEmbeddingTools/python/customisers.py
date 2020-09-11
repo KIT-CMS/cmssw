@@ -2,7 +2,6 @@
 
 
 ### Various set of customise functions needed for embedding
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Utilities import cleanUnscheduled
 
@@ -75,121 +74,121 @@ to_bemanipulate.append(module_manipulate(module_name = 'csc2DRecHits', manipulat
 to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator_name = "RPCRecHit",  steps = ["SELECT","CLEAN"] ))
 
 def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
-	for outputModule in outputModulesList:
-		if outputModule in module_veto_list:
-			continue
-		outputModule = getattr(process, outputModule)
-		for add_element in keep_drop_list:
-			outputModule.outputCommands.extend(add_element)
-	return process
+    outputModulesList = [key for key,value in process.outputModules.iteritems()]
+    for outputModule in outputModulesList:
+        if outputModule in module_veto_list:
+            continue
+        outputModule = getattr(process, outputModule)
+        for add_element in keep_drop_list:
+            outputModule.outputCommands.extend(add_element)
+    return process
 
 
 
 ################################ Customizer for Selecting ###########################
 
 def keepSelected(dataTier):
-	 ret_vstring = cms.untracked.vstring(
-			 #"drop *_*_*_"+dataTier,
-			 "keep *_patMuonsAfterID_*_"+dataTier,
-			 "keep *_slimmedMuons_*_"+dataTier,
-			 "keep *_selectedMuonsForEmbedding_*_"+dataTier,
-			 "keep recoVertexs_offlineSlimmedPrimaryVertices_*_"+dataTier,
-			 "keep *_firstStepPrimaryVertices_*_"+dataTier,
-			 "keep *_offlineBeamSpot_*_"+dataTier,
-			 "keep *_ecalDrivenElectronSeeds_*_"+dataTier
-			 )
-	 for akt_manimod in to_bemanipulate:
-		if "CLEAN" in akt_manimod.steps:
-			ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_"+dataTier)
-	 return ret_vstring
+     ret_vstring = cms.untracked.vstring(
+             #"drop *_*_*_"+dataTier,
+             "keep *_patMuonsAfterID_*_"+dataTier,
+             "keep *_slimmedMuons_*_"+dataTier,
+             "keep *_selectedMuonsForEmbedding_*_"+dataTier,
+             "keep recoVertexs_offlineSlimmedPrimaryVertices_*_"+dataTier,
+             "keep *_firstStepPrimaryVertices_*_"+dataTier,
+             "keep *_offlineBeamSpot_*_"+dataTier,
+             "keep *_ecalDrivenElectronSeeds_*_"+dataTier
+             )
+     for akt_manimod in to_bemanipulate:
+        if "CLEAN" in akt_manimod.steps:
+            ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_"+dataTier)
+     return ret_vstring
 
 def customiseSelecting(process,reselect=False):
-	if reselect:
-		process._Process__name = "RESELECT"
-		dataTier="RESELECT"
-		process.source.inputCommands = cms.untracked.vstring("drop *",
-			"keep *_*_*_LHC",
-			"keep *_*_*_HLT",
-		)
-	else:
-		process._Process__name = "SELECT"
-		dataTier="SELECT"
+    if reselect:
+        process._Process__name = "RESELECT"
+        dataTier="RESELECT"
+        process.source.inputCommands = cms.untracked.vstring("drop *",
+            "keep *_*_*_LHC",
+            "keep *_*_*_HLT",
+        )
+    else:
+        process._Process__name = "SELECT"
+        dataTier="SELECT"
 
-	process.load('TauAnalysis.MCEmbeddingTools.SelectingProcedure_cff')
-	process.patMuonsAfterKinCuts.src = cms.InputTag("slimmedMuons","",dataTier)
-	process.patMuonsAfterID = process.patMuonsAfterLooseID.clone()
+    process.load('TauAnalysis.MCEmbeddingTools.SelectingProcedure_cff')
+    process.patMuonsAfterKinCuts.src = cms.InputTag("slimmedMuons","",dataTier)
+    process.patMuonsAfterID = process.patMuonsAfterLooseID.clone()
 
-	process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
-	process.schedule.insert(-1, process.selecting)
+    process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
+    process.schedule.insert(-1, process.selecting)
 
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
-	for outputModule in outputModulesList:
-		outputModule = getattr(process, outputModule)
-		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("selecting"))
-		outputModule.outputCommands.extend(keepSelected(dataTier))
+    outputModulesList = [key for key,value in process.outputModules.iteritems()]
+    for outputModule in outputModulesList:
+        outputModule = getattr(process, outputModule)
+        outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("selecting"))
+        outputModule.outputCommands.extend(keepSelected(dataTier))
 
-	process = customisoptions(process)
-	return modify_outputModules(process,[keepSelected(dataTier)])
+    process = customisoptions(process)
+    return modify_outputModules(process,[keepSelected(dataTier)])
 
 def customiseSelecting_Reselect(process):
     return customiseSelecting(process,reselect=True)
 
 ################################ Customizer for cleaining ###########################
 def keepCleaned(dataTier):
-	 ret_vstring = cms.untracked.vstring(
+     ret_vstring = cms.untracked.vstring(
 #	 	                 "drop *_*_*_LHEembeddingCLEAN",
 #	 	                 "drop *_*_*_CLEAN"
-				 "drop *_*_*_"+dataTier,
-				 "keep *_patMuonsAfterID_*_"+dataTier,
-				 "keep *_slimmedMuons_*_"+dataTier,
-				 "keep *_selectedMuonsForEmbedding_*_"+dataTier,
-				 "keep recoVertexs_offlineSlimmedPrimaryVertices_*_"+dataTier,
-				 "keep *_firstStepPrimaryVertices_*_"+dataTier,
-				 "keep *_offlineBeamSpot_*_"+dataTier,
-				 "keep *_l1extraParticles_*_"+dataTier,
-				#"keep recoPFClusters_*_*_*",
-				#"keep recoPFRecHits_*_*_*"
-				 )
+                 "drop *_*_*_"+dataTier,
+                 "keep *_patMuonsAfterID_*_"+dataTier,
+                 "keep *_slimmedMuons_*_"+dataTier,
+                 "keep *_selectedMuonsForEmbedding_*_"+dataTier,
+                 "keep recoVertexs_offlineSlimmedPrimaryVertices_*_"+dataTier,
+                 "keep *_firstStepPrimaryVertices_*_"+dataTier,
+                 "keep *_offlineBeamSpot_*_"+dataTier,
+                 "keep *_l1extraParticles_*_"+dataTier,
+                #"keep recoPFClusters_*_*_*",
+                #"keep recoPFRecHits_*_*_*"
+                 )
 
-	 for akt_manimod in to_bemanipulate:
-		if "MERGE" in akt_manimod.steps:
-			ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_LHEembeddingCLEAN")
-			ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_CLEAN")
-	 ret_vstring.append("keep *_standAloneMuons_*_LHEembeddingCLEAN")
-	 ret_vstring.append("keep *_glbTrackQual_*_LHEembeddingCLEAN")
-	 return ret_vstring
+     for akt_manimod in to_bemanipulate:
+        if "MERGE" in akt_manimod.steps:
+            ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_LHEembeddingCLEAN")
+            ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_CLEAN")
+     ret_vstring.append("keep *_standAloneMuons_*_LHEembeddingCLEAN")
+     ret_vstring.append("keep *_glbTrackQual_*_LHEembeddingCLEAN")
+     return ret_vstring
 
 
 
 def customiseCleaning(process, changeProcessname=True,reselect=False):
-	if changeProcessname:
-		process._Process__name = "CLEAN"
-	if reselect:
-		dataTier="RESELECT"
-	else:
-		dataTier="SELECT"
-	## Needed for the Calo Cleaner, could also be put into a function wich fix the input parameters
-	from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.CSCSegmentCollectionLabel = cms.InputTag("cscSegments","",dataTier)
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.CaloTowerCollectionLabel = cms.InputTag("towerMaker","",dataTier)
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments","",dataTier)
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB",dataTier)
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE",dataTier)
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbhereco","",dataTier)
-	TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("horeco","",dataTier)
+    if changeProcessname:
+        process._Process__name = "CLEAN"
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    ## Needed for the Calo Cleaner, could also be put into a function wich fix the input parameters
+    from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.CSCSegmentCollectionLabel = cms.InputTag("cscSegments","",dataTier)
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.CaloTowerCollectionLabel = cms.InputTag("towerMaker","",dataTier)
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments","",dataTier)
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB",dataTier)
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE",dataTier)
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbhereco","",dataTier)
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("horeco","",dataTier)
 
 
-	MuonImput = cms.InputTag("selectedMuonsForEmbedding","","")  ## This are the muon
-	for akt_manimod in to_bemanipulate:
-		if "CLEAN" in akt_manimod.steps:
-			oldCollections_in = cms.VInputTag()
-			for instance in akt_manimod.instance:
-				oldCollections_in.append(cms.InputTag(akt_manimod.module_name,instance,dataTier))
-			setattr(process, akt_manimod.module_name, cms.EDProducer(akt_manimod.cleaner_name,MuonCollection = MuonImput,TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,oldCollection = oldCollections_in))
-	process.ecalPreshowerRecHit.TrackAssociatorParameters.usePreshower = cms.bool(True)
-	process = customisoptions(process)
-	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier)],["MINIAODoutput"])
+    MuonImput = cms.InputTag("selectedMuonsForEmbedding","","")  ## This are the muon
+    for akt_manimod in to_bemanipulate:
+        if "CLEAN" in akt_manimod.steps:
+            oldCollections_in = cms.VInputTag()
+            for instance in akt_manimod.instance:
+                oldCollections_in.append(cms.InputTag(akt_manimod.module_name,instance,dataTier))
+            setattr(process, akt_manimod.module_name, cms.EDProducer(akt_manimod.cleaner_name,MuonCollection = MuonImput,TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,oldCollection = oldCollections_in))
+    process.ecalPreshowerRecHit.TrackAssociatorParameters.usePreshower = cms.bool(True)
+    process = customisoptions(process)
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier)],["MINIAODoutput"])
 
 
 ################################ Customizer for simulaton ###########################
@@ -200,258 +199,372 @@ def keepLHE():
     return ret_vstring
 
 
-def keepSimulated():
-	ret_vstring = cms.untracked.vstring()
-	for akt_manimod in to_bemanipulate:
-		if "MERGE" in akt_manimod.steps:
-			ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_SIMembedding")
-	ret_vstring.append("keep *_genParticles_*_SIMembedding")
-	ret_vstring.append("keep *_standAloneMuons_*_SIMembedding")
-	ret_vstring.append("keep *_glbTrackQual_*_SIMembedding")
-	ret_vstring.append("keep *_generator_*_SIMembedding")
-	ret_vstring.append("keep *_addPileupInfo_*_SIMembedding")
-	ret_vstring.append("keep *_slimmedAddPileupInfo_*_*")
-	ret_vstring.append("keep *_embeddingHltPixelVertices_*_*")
-	return ret_vstring
+def keepSimulated(process, processname="SIMembedding"):
+    ret_vstring = cms.untracked.vstring()
+
+
+    for akt_manimod in to_bemanipulate:
+        if "MERGE" in akt_manimod.steps:
+            ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_{}".format(processname))
+    ret_vstring.append("keep *_genParticles_*_{}".format(processname))
+    ret_vstring.append("keep *_standAloneMuons_*_{}".format(processname))
+    ret_vstring.append("keep *_glbTrackQual_*_{}".format(processname))
+    ret_vstring.append("keep *_generator_*_{}".format(processname))
+    ret_vstring.append("keep *_addPileupInfo_*_{}".format(processname))
+    ret_vstring.append("keep *_slimmedAddPileupInfo_*_*")
+    ret_vstring.append("keep *_embeddingHltPixelVertices_*_*")
+    ret_vstring.append("keep *_*_vertexPosition_*")
+    ret_vstring.append('keep recoMuons_muonsFromCosmics_*_*')
+    ret_vstring.append('keep recoTracks_cosmicMuons1Leg_*_*')
+    ret_vstring.append('keep recoMuons_muonsFromCosmics1Leg_*_*')
+    ret_vstring.append('keep *_muonDTDigis_*_*')
+    ret_vstring.append('keep *_muonCSCDigis_*_*')
+    # for those two steps, the output has to be modified
+    # to keep the information from the cleaning step in the output file
+    if processname == "SIMembeddingpreHLT" or processname == "SIMembeddingHLT":
+        rawreco_commands = set(process.RAWRECOEventContent.outputCommands)
+        rawreco_commands_excl = rawreco_commands - set(process.RAWSIMEventContent.outputCommands)
+        for entry in rawreco_commands_excl:
+            if not any(x in entry for x in ["TotemTimingLocalTrack", "ForwardProton", "ctppsDiamondLocalTracks"]):
+                ret_vstring.append(entry)
+    return ret_vstring
 
 
 
 
 def customiseLHE(process, changeProcessname=True,reselect=False):
-	if reselect:
-		dataTier="RESELECT"
-	else:
-		dataTier="SELECT"
-	if changeProcessname:
-		process._Process__name = "LHEembedding"
-	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingLHEProducer_cfi')
-	if reselect:
-		process.externalLHEProducer.vertices=cms.InputTag("offlineSlimmedPrimaryVertices","","RESELECT")
-	process.lheproduction = cms.Path(process.makeexternalLHEProducer)
-	process.schedule.insert(0,process.lheproduction)
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "LHEembedding"
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingLHEProducer_cfi')
+    if reselect:
+        process.externalLHEProducer.vertices=cms.InputTag("offlineSlimmedPrimaryVertices","","RESELECT")
+    process.lheproduction = cms.Path(process.makeexternalLHEProducer)
+    process.schedule.insert(0,process.lheproduction)
 
 
-	process = customisoptions(process)
-	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier), keepLHE()],["MINIAODoutput"])
+    process = customisoptions(process)
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier)],["MINIAODoutput"])
 
 
 def customiseGenerator(process, changeProcessname=True,reselect=False):
-	if reselect:
-		dataTier="RESELECT"
-	else:
-		dataTier="SELECT"
-	if changeProcessname:
-		process._Process__name = "SIMembedding"
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "SIMembedding"
 
-	## here correct the vertex collection
+    ## here correct the vertex collection
 
-	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
-	process.VtxSmeared = process.VtxCorrectedToInput.clone()
-	print("Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector.")
-	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingBeamSpotOnline_cfi')
-	process.hltOnlineBeamSpot = process.onlineEmbeddingBeamSpotProducer.clone()
-	print("Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot.")
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
+    process.VtxSmeared = process.VtxCorrectedToInput.clone()
+    print("Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector.")
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingBeamSpotOnline_cfi')
+    process.hltOnlineBeamSpot = process.onlineEmbeddingBeamSpotProducer.clone()
+    print("Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot.")
 
-	# Remove BeamSpot Production, use the one from selected data instead.
-	process.reconstruction.remove(process.offlineBeamSpot)
+    # Remove BeamSpot Production, use the one from selected data instead.
+    process.reconstruction.remove(process.offlineBeamSpot)
 
-	# Disable noise simulation
-	process.mix.digitizers.castor.doNoise = cms.bool(False)
+    # Disable noise simulation
+    process.mix.digitizers.castor.doNoise = cms.bool(False)
 
-	process.mix.digitizers.ecal.doESNoise = cms.bool(False)
-	process.mix.digitizers.ecal.doENoise = cms.bool(False)
+    process.mix.digitizers.ecal.doESNoise = cms.bool(False)
+    process.mix.digitizers.ecal.doENoise = cms.bool(False)
 
-	process.mix.digitizers.hcal.doNoise = cms.bool(False)
-	process.mix.digitizers.hcal.doThermalNoise = cms.bool(False)
-	process.mix.digitizers.hcal.doHPDNoise = cms.bool(False)
+    process.mix.digitizers.hcal.doNoise = cms.bool(False)
+    process.mix.digitizers.hcal.doThermalNoise = cms.bool(False)
+    process.mix.digitizers.hcal.doHPDNoise = cms.bool(False)
 
-	process.mix.digitizers.pixel.AddNoisyPixels = cms.bool(False)
-	process.mix.digitizers.pixel.AddNoise = cms.bool(False)
+    process.mix.digitizers.pixel.AddNoisyPixels = cms.bool(False)
+    process.mix.digitizers.pixel.AddNoise = cms.bool(False)
 
-	process.mix.digitizers.strip.Noise = cms.bool(False)
-	
-	# Replace HLT vertexing with vertex taken from LHE step
-	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingHltPixelVerticesProducer_cfi')
-	process.hltPixelVertices = process.embeddingHltPixelVertices.clone()
-	process.offlinePrimaryVertices = process.embeddingHltPixelVertices.clone()
-	process.firstStepPrimaryVerticesUnsorted = process.embeddingHltPixelVertices.clone()
-	process.firstStepPrimaryVerticesPreSplitting = process.embeddingHltPixelVertices.clone()
+    process.mix.digitizers.strip.Noise = cms.bool(False)
+    
+    # Replace HLT vertexing with vertex taken from LHE step
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingHltPixelVerticesProducer_cfi')
+    process.hltPixelVertices = process.embeddingHltPixelVertices.clone()
+    process.offlinePrimaryVertices = process.embeddingHltPixelVertices.clone()
+    process.firstStepPrimaryVerticesUnsorted = process.embeddingHltPixelVertices.clone()
+    process.firstStepPrimaryVerticesPreSplitting = process.embeddingHltPixelVertices.clone()
 
 
-	process = customisoptions(process)
-	##process = fix_input_tags(process)
+    process = customisoptions(process)
+    ##process = fix_input_tags(process)
 
-	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated()],["AODSIMoutput"])
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated()],["AODSIMoutput"])
 
 def customiseGenerator_Reselect(process):
     return customiseGenerator(process,reselect=True)
+
+
+def customiseGenerator_preHLT(process, changeProcessname=True,reselect=False):
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "SIMembeddingpreHLT"
+
+    ## here correct the vertex collection
+
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
+    process.VtxSmeared = process.VtxCorrectedToInput.clone()
+    print "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
+
+    # Disable noise simulation
+    process.mix.digitizers.castor.doNoise = cms.bool(False)
+
+    process.mix.digitizers.ecal.doESNoise = cms.bool(False)
+    process.mix.digitizers.ecal.doENoise = cms.bool(False)
+
+    process.mix.digitizers.hcal.doNoise = cms.bool(False)
+    process.mix.digitizers.hcal.doThermalNoise = cms.bool(False)
+    process.mix.digitizers.hcal.doHPDNoise = cms.bool(False)
+
+    process.mix.digitizers.pixel.AddNoisyPixels = cms.bool(False)
+    process.mix.digitizers.pixel.AddNoise = cms.bool(False)
+
+    process.mix.digitizers.strip.Noise = cms.bool(False)
+
+    process = customisoptions(process)
+    ##process = fix_input_tags(process)
+
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated(process, processname="SIMembeddingpreHLT")],["AODSIMoutput"])
+
+def customiseGenerator_preHLT_Reselect(process):
+    return customiseGenerator_preHLT(process,reselect=True)
+
+def customiseGenerator_HLT(process, changeProcessname=True,reselect=False):
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "SIMembeddingHLT"
+
+    ## here correct the vertex collection
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingBeamSpotOnline_cfi')
+    process.hltOnlineBeamSpot = process.onlineEmbeddingBeamSpotProducer.clone()
+    print "Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot."
+
+    # Replace HLT vertexing with vertex taken from LHE step
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingHltPixelVerticesProducer_cfi')
+    process.hltPixelVertices = process.embeddingHltPixelVertices.clone()
+    process.offlinePrimaryVertices = process.embeddingHltPixelVertices.clone()
+    process.firstStepPrimaryVerticesUnsorted = process.embeddingHltPixelVertices.clone()
+    process.firstStepPrimaryVerticesPreSplitting = process.embeddingHltPixelVertices.clone()
+
+
+    process = customisoptions(process)
+    ##process = fix_input_tags(process)
+
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepLHE(),keepSimulated(process, processname="SIMembeddingpreHLT"),keepSimulated(process, processname="SIMembeddingHLT")],["AODSIMoutput"])
+
+def customiseGenerator_HLT_Reselect(process):
+    return customiseGenerator_HLT(process,reselect=True)
+
+def customiseGenerator_postHLT(process, changeProcessname=True,reselect=False):
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "SIMembedding"
+
+    ## here correct the vertex collection
+
+    # process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
+    # process.VtxSmeared = process.VtxCorrectedToInput.clone()
+    # print "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
+    # process.load('TauAnalysis.MCEmbeddingTools.EmbeddingBeamSpotOnline_cfi')
+    # process.hltOnlineBeamSpot = process.onlineEmbeddingBeamSpotProducer.clone()
+    # print "Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot."
+
+    # Remove BeamSpot Production, use the one from selected data instead.
+    process.reconstruction.remove(process.offlineBeamSpot)
+
+    process = customisoptions(process)
+    ##process = fix_input_tags(process)
+
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated(process, processname="SIMembeddingpreHLT"),keepSimulated(process, processname="SIMembeddingHLT"),keepSimulated(process)],["AODSIMoutput"])
+
+def customiseGenerator_postHLT_Reselect(process):
+    return customiseGenerator_postHLT(process,reselect=True)
 
 ################################ Customizer for merging ###########################
 def keepMerged(dataTier="SELECT"):
     ret_vstring = cms.untracked.vstring()
     ret_vstring.append("drop *_*_*_"+dataTier)
     ret_vstring.append("keep *_prunedGenParticles_*_MERGE")
-    ret_vstring.append("keep *_generator_*_SIMembedding")
+    ret_vstring.append("keep *_generator_*_SIMembeddingpreHLT")
     return ret_vstring
 
 
 def customiseKeepPrunedGenParticles(process,reselect=False):
-	if reselect:
-		dataTier="RESELECT"
-	else:
-		dataTier="SELECT"
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
 
-	process.keep_step = cms.Path()
+    process.keep_step = cms.Path()
 
-	process.load('PhysicsTools.PatAlgos.slimming.genParticles_cff')
-	process.keep_step += process.prunedGenParticlesWithStatusOne
-	process.load('PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi')
-	process.keep_step += process.prunedGenParticles
-	process.load('PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi')
-	process.keep_step += process.packedGenParticles
+    process.load('PhysicsTools.PatAlgos.slimming.genParticles_cff')
+    process.keep_step += process.prunedGenParticlesWithStatusOne
+    process.load('PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi')
+    process.keep_step += process.prunedGenParticles
+    process.load('PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi')
+    process.keep_step += process.packedGenParticles
 
-	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi')
-	process.keep_step += process.muonMatch
-	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi')
-	process.keep_step += process.electronMatch
-	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.photonMatch_cfi')
-	process.keep_step += process.photonMatch
-	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi')
-	process.keep_step += process.tauMatch
-	process.load('PhysicsTools.JetMCAlgos.TauGenJets_cfi')
-	process.keep_step += process.tauGenJets
-	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff')
-	process.keep_step += process.patJetPartons
-	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi')
-	process.keep_step += process.patJetPartonMatch
+    process.load('PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi')
+    process.keep_step += process.muonMatch
+    process.load('PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi')
+    process.keep_step += process.electronMatch
+    process.load('PhysicsTools.PatAlgos.mcMatchLayer0.photonMatch_cfi')
+    process.keep_step += process.photonMatch
+    process.load('PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi')
+    process.keep_step += process.tauMatch
+    process.load('PhysicsTools.JetMCAlgos.TauGenJets_cfi')
+    process.keep_step += process.tauGenJets
+    process.load('PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff')
+    process.keep_step += process.patJetPartons
+    process.load('PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi')
+    process.keep_step += process.patJetPartonMatch
 
-	process.muonMatch.matched = "prunedGenParticles"
-	process.electronMatch.matched = "prunedGenParticles"
-	process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-	process.photonMatch.matched = "prunedGenParticles"
-	process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
-	process.tauMatch.matched = "prunedGenParticles"
-	process.tauGenJets.GenParticles = "prunedGenParticles"
-	##Boosted taus
-	#process.tauMatchBoosted.matched = "prunedGenParticles"
-	#process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
-	process.patJetPartons.particles = "prunedGenParticles"
-	process.patJetPartonMatch.matched = "prunedGenParticles"
-	process.patJetPartonMatch.mcStatus = [ 3, 23 ]
-	process.patJetGenJetMatch.matched = "slimmedGenJets"
-	process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
-	process.patMuons.embedGenMatch = False
-	process.patElectrons.embedGenMatch = False
-	process.patPhotons.embedGenMatch = False
-	process.patTaus.embedGenMatch = False
-	process.patTausBoosted.embedGenMatch = False
-	process.patJets.embedGenPartonMatch = False
-	#also jet flavour must be switched
-	process.patJetFlavourAssociation.rParam = 0.4
+    process.muonMatch.matched = "prunedGenParticles"
+    process.electronMatch.matched = "prunedGenParticles"
+    process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.photonMatch.matched = "prunedGenParticles"
+    process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.tauMatch.matched = "prunedGenParticles"
+    process.tauGenJets.GenParticles = "prunedGenParticles"
+    ##Boosted taus
+    #process.tauMatchBoosted.matched = "prunedGenParticles"
+    #process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
+    process.patJetPartons.particles = "prunedGenParticles"
+    process.patJetPartonMatch.matched = "prunedGenParticles"
+    process.patJetPartonMatch.mcStatus = [ 3, 23 ]
+    process.patJetGenJetMatch.matched = "slimmedGenJets"
+    process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
+    process.patMuons.embedGenMatch = False
+    process.patElectrons.embedGenMatch = False
+    process.patPhotons.embedGenMatch = False
+    process.patTaus.embedGenMatch = False
+    process.patTausBoosted.embedGenMatch = False
+    process.patJets.embedGenPartonMatch = False
+    #also jet flavour must be switched
+    process.patJetFlavourAssociation.rParam = 0.4
 
-	process.schedule.insert(0,process.keep_step)
-	process = customisoptions(process)
-	return modify_outputModules(process, [keepMerged(dataTier)])
+    process.schedule.insert(0,process.keep_step)
+    process = customisoptions(process)
+    return modify_outputModules(process, [keepMerged(dataTier)])
 
 
 def customiseMerging(process, changeProcessname=True,reselect=False):
-	if changeProcessname:
-		process._Process__name = "MERGE"
-	if reselect:
-		dataTier="RESELECT"
-	else:
-		dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "MERGE"
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
 
 
-	process.source.inputCommands = cms.untracked.vstring()
-	process.source.inputCommands.append("keep *_*_*_*")
+    process.source.inputCommands = cms.untracked.vstring()
+    process.source.inputCommands.append("keep *_*_*_*")
 
-	#process.source.inputCommands.append("drop *_*_*_SELECT")
-	#process.source.inputCommands.append("drop *_*_*_SIMembedding")
-	#process.source.inputCommands.append("drop *_*_*_LHEembeddingCLEAN")
-	#process.source.inputCommands.extend(keepSimulated())
-	#process.source.inputCommands.extend(keepCleaned())
+    #process.source.inputCommands.append("drop *_*_*_SELECT")
+    #process.source.inputCommands.append("drop *_*_*_SIMembedding")
+    #process.source.inputCommands.append("drop *_*_*_LHEembeddingCLEAN")
+    #process.source.inputCommands.extend(keepSimulated())
+    #process.source.inputCommands.extend(keepCleaned())
 
-	process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
-	process.merge_step = cms.Path()
-	#produce local Calo
-	process.load('RecoLocalCalo.Configuration.RecoLocalCalo_cff')
-	process.merge_step += process.calolocalreco
-	process.merge_step += process.caloglobalreco
-	process.merge_step += process.reducedHcalRecHitsSequence
+    process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+    process.merge_step = cms.Path()
+    #produce local Calo
+    process.load('RecoLocalCalo.Configuration.RecoLocalCalo_cff')
+    process.merge_step += process.calolocalreco
+    process.merge_step += process.caloglobalreco
+    process.merge_step += process.reducedHcalRecHitsSequence
 
-	#produce hcal towers
-	process.load('RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi')
-	process.merge_step += process.calotowermaker
-	process.merge_step += process.towerMaker
+    #produce hcal towers
+    process.load('RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi')
+    process.merge_step += process.calotowermaker
+    process.merge_step += process.towerMaker
 
-	#produce clusters
-	process.load('RecoEcal.Configuration.RecoEcal_cff')
-	process.merge_step += process.ecalClusters
+    #produce clusters
+    process.load('RecoEcal.Configuration.RecoEcal_cff')
+    process.merge_step += process.ecalClusters
 
-	#produce PFCluster Collections
-	process.load('RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff')
-	process.merge_step += process.particleFlowCluster
-	process.load('RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff')
-	process.merge_step += process.particleFlowSuperClusteringSequence
+    #produce PFCluster Collections
+    process.load('RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff')
+    process.merge_step += process.particleFlowCluster
+    process.load('RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff')
+    process.merge_step += process.particleFlowSuperClusteringSequence
 
-	#muonEcalDetIds
-	process.load('RecoMuon.MuonIdentification.muons1stStep_cfi')
-	process.merge_step += process.muonEcalDetIds
+    #muonEcalDetIds
+    process.load('RecoMuon.MuonIdentification.muons1stStep_cfi')
+    process.merge_step += process.muonEcalDetIds
 
-	for akt_manimod in to_bemanipulate:
-		if "MERGE" in akt_manimod.steps:
-			mergCollections_in = cms.VInputTag()
-			for instance in akt_manimod.instance:
-				mergCollections_in.append(cms.InputTag(akt_manimod.merge_prefix+akt_manimod.module_name,instance,"SIMembedding"))
-				mergCollections_in.append(cms.InputTag(akt_manimod.merge_prefix+akt_manimod.module_name,instance,"LHEembeddingCLEAN"))##  Mayb make some process history magic which finds out if it was CLEAN or LHEembeddingCLEAN step
-			setattr(process, akt_manimod.module_name, cms.EDProducer(akt_manimod.merger_name,
-								 mergCollections = mergCollections_in
-								 )
-			)
-			process.merge_step +=getattr(process, akt_manimod.module_name)
+    for akt_manimod in to_bemanipulate:
+        if "MERGE" in akt_manimod.steps:
+            mergCollections_in = cms.VInputTag()
+            for instance in akt_manimod.instance:
+                mergCollections_in.append(cms.InputTag(akt_manimod.merge_prefix+akt_manimod.module_name,instance,"SIMembedding"))
+                mergCollections_in.append(cms.InputTag(akt_manimod.merge_prefix+akt_manimod.module_name,instance,"LHEembeddingCLEAN"))##  Mayb make some process history magic which finds out if it was CLEAN or LHEembeddingCLEAN step
+            setattr(process, akt_manimod.module_name, cms.EDProducer(akt_manimod.merger_name,
+                                 mergCollections = mergCollections_in
+                                 )
+            )
+            process.merge_step +=getattr(process, akt_manimod.module_name)
 
-	
-	process.merge_step += process.doAlldEdXEstimators
-	process.merge_step += process.vertexreco
-	process.unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","",dataTier)
-	process.ak4CaloJetsForTrk.srcPVs = cms.InputTag("firstStepPrimaryVertices","",dataTier)
+    
+    process.merge_step += process.doAlldEdXEstimators
+    process.merge_step += process.vertexreco
+    process.unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","",dataTier)
+    process.ak4CaloJetsForTrk.srcPVs = cms.InputTag("firstStepPrimaryVertices","",dataTier)
 
-	process.muons.FillDetectorBasedIsolation = cms.bool(False)
-	process.muons.FillSelectorMaps = cms.bool(False)
-	process.muons.FillShoweringInfo = cms.bool(False)
-	process.muons.FillCosmicsIdMap = cms.bool(False)
+    process.muons.FillDetectorBasedIsolation = cms.bool(False)
+    process.muons.FillSelectorMaps = cms.bool(False)
+    process.muons.FillShoweringInfo = cms.bool(False)
+    process.muons.FillCosmicsIdMap = cms.bool(False)
 
-	#seed configuration needed for seedmerger
-	process.load('RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff')
-	process.ecalDrivenElectronSeeds.SeedConfiguration = cms.PSet(process.ecalDrivenElectronSeedsParameters)
+    #seed configuration needed for seedmerger
+    process.load('RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff')
+    process.ecalDrivenElectronSeeds.SeedConfiguration = cms.PSet(process.ecalDrivenElectronSeedsParameters)
 
 
-	process.merge_step += process.highlevelreco
-	#process.merge_step.remove(process.reducedEcalRecHitsEE)
-	#process.merge_step.remove(process.reducedEcalRecHitsEB)
+    process.merge_step += process.highlevelreco
+    #process.merge_step.remove(process.reducedEcalRecHitsEE)
+    #process.merge_step.remove(process.reducedEcalRecHitsEB)
 
-	process.merge_step.remove(process.ak4JetTracksAssociatorExplicit)
+    process.merge_step.remove(process.ak4JetTracksAssociatorExplicit)
 
-	process.merge_step.remove(process.cosmicsVeto)
-	process.merge_step.remove(process.cosmicsVetoTrackCandidates)
-	#process.merge_step.remove(process.ecalDrivenGsfElectronCores)
-	#process.merge_step.remove(process.ecalDrivenGsfElectrons)
-	#process.merge_step.remove(process.gedPhotonsTmp)
-	#process.merge_step.remove(process.particleFlowTmp)
+    process.merge_step.remove(process.cosmicsVeto)
+    process.merge_step.remove(process.cosmicsVetoTrackCandidates)
+    #process.merge_step.remove(process.ecalDrivenGsfElectronCores)
+    #process.merge_step.remove(process.ecalDrivenGsfElectrons)
+    #process.merge_step.remove(process.gedPhotonsTmp)
+    #process.merge_step.remove(process.particleFlowTmp)
 
-	process.merge_step.remove(process.hcalnoise)
+    process.merge_step.remove(process.hcalnoise)
 
-	process.load('CommonTools.ParticleFlow.genForPF2PAT_cff')
+    process.load('CommonTools.ParticleFlow.genForPF2PAT_cff')
 
-	process.merge_step += process.genForPF2PATSequence
-	process.schedule.insert(0,process.merge_step)
-	 # process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
-	process = customisoptions(process)
-	return modify_outputModules(process, [keepMerged(dataTier)])
+    #process.muonsFromCosmics.ShowerDigiFillerParameters.dtDigiCollectionLabel = cms.InputTag("simMuonDTDigis")
+
+
+    process.merge_step += process.genForPF2PATSequence
+    process.schedule.insert(0,process.merge_step)
+     # process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
+    process = customisoptions(process)
+    return modify_outputModules(process, [keepMerged(dataTier)])
 
 def customiseMerging_Reselect(process, changeProcessname=True):
-	return customiseMerging(process, changeProcessname=changeProcessname, reselect=True)
+    return customiseMerging(process, changeProcessname=changeProcessname, reselect=True)
 
 ################################ cross Customizers ###########################
 
@@ -492,40 +605,40 @@ def customiseFilterTTbartoMuMu(process):
     return customiseMCFilter(process)
 
 def customiseMCFilter(process):
-	process.schedule.insert(-1,process.MCFilter)
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
-	for outputModule in outputModulesList:
-		outputModule = getattr(process, outputModule)
-		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("MCFilter"))
-	return process
+    process.schedule.insert(-1,process.MCFilter)
+    outputModulesList = [key for key,value in process.outputModules.iteritems()]
+    for outputModule in outputModulesList:
+        outputModule = getattr(process, outputModule)
+        outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("MCFilter"))
+    return process
 
 def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSegments","rpcRecHits"]):
-	def change_tags_process(test_input):
-		if isinstance(test_input, cms.InputTag):
-			if test_input.getModuleLabel() in formodules:
-				test_input.setProcessName(process._Process__name)
+    def change_tags_process(test_input):
+        if isinstance(test_input, cms.InputTag):
+            if test_input.getModuleLabel() in formodules:
+                test_input.setProcessName(process._Process__name)
 
-	def search_for_tags(pset):
-		if isinstance(pset, dict):
-			for key in pset:
-				if isinstance(pset[key], cms.VInputTag):
-					for akt_inputTag in pset[key]:
-						change_tags_process(akt_inputTag)
-				elif isinstance(pset[key], cms.PSet):
-					search_for_tags(pset[key].__dict__)
-				elif isinstance(pset[key], cms.VPSet):
-					for akt_pset in pset[key]:
-						search_for_tags(akt_pset.__dict__)
-				else:
-					change_tags_process(pset[key])
-		else:
-			print("must be python dict not a ",type(pset))
+    def search_for_tags(pset):
+        if isinstance(pset, dict):
+            for key in pset:
+                if isinstance(pset[key], cms.VInputTag):
+                    for akt_inputTag in pset[key]:
+                        change_tags_process(akt_inputTag)
+                elif isinstance(pset[key], cms.PSet):
+                    search_for_tags(pset[key].__dict__)
+                elif isinstance(pset[key], cms.VPSet):
+                    for akt_pset in pset[key]:
+                        search_for_tags(akt_pset.__dict__)
+                else:
+                    change_tags_process(pset[key])
+        else:
+            print "must be python dict not a ",type(pset)
 
-	for module in process.producers_():
-		search_for_tags(getattr(process, module).__dict__)
-	for module in process.filters_():
-		search_for_tags(getattr(process, module).__dict__)
-	for module in process.analyzers_():
-		search_for_tags(getattr(process, module).__dict__)
+    for module in process.producers_():
+        search_for_tags(getattr(process, module).__dict__)
+    for module in process.filters_():
+        search_for_tags(getattr(process, module).__dict__)
+    for module in process.analyzers_():
+        search_for_tags(getattr(process, module).__dict__)
 
-	return process
+    return process
