@@ -190,13 +190,44 @@ def customiseCleaning(process, changeProcessname=True,reselect=False):
     process = customisoptions(process)
     return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier)],["MINIAODoutput"])
 
-
-################################ Customizer for simulaton ###########################
+################################ Customizer for LHE ###########################
 def keepLHE():
     ret_vstring = cms.untracked.vstring()
     ret_vstring.append("keep *_externalLHEProducer_*_LHEembedding")
     ret_vstring.append("keep *_externalLHEProducer_*_LHEembeddingCLEAN")
     return ret_vstring
+
+
+def customiseLHE(process, changeProcessname=True,reselect=False):
+    if reselect:
+        dataTier="RESELECT"
+    else:
+        dataTier="SELECT"
+    if changeProcessname:
+        process._Process__name = "LHEembedding"
+    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingLHEProducer_cfi')
+    if reselect:
+        process.externalLHEProducer.vertices=cms.InputTag("offlineSlimmedPrimaryVertices","","RESELECT")
+    process.lheproduction = cms.Path(process.makeexternalLHEProducer)
+    process.schedule.insert(0,process.lheproduction)
+
+
+    process = customisoptions(process)
+    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepLHE()],["MINIAODoutput"])
+
+
+def customiseLHEandCleaning(process,reselect=False):
+    process._Process__name = "LHEembeddingCLEAN"
+    process = customiseCleaning(process,changeProcessname=False,reselect=reselect)
+    process = customiseLHE(process,changeProcessname=False,reselect=reselect)
+    return process
+
+def customiseLHEandCleaning_Reselect(process):
+    return customiseLHEandCleaning(process,reselect=True)
+
+
+
+################################ Customizer for simulaton ###########################
 
 
 def keepSimulated(process, processname="SIMembedding"):
@@ -228,26 +259,6 @@ def keepSimulated(process, processname="SIMembedding"):
             if not any(x in entry for x in ["TotemTimingLocalTrack", "ForwardProton", "ctppsDiamondLocalTracks"]):
                 ret_vstring.append(entry)
     return ret_vstring
-
-
-
-
-def customiseLHE(process, changeProcessname=True,reselect=False):
-    if reselect:
-        dataTier="RESELECT"
-    else:
-        dataTier="SELECT"
-    if changeProcessname:
-        process._Process__name = "LHEembedding"
-    process.load('TauAnalysis.MCEmbeddingTools.EmbeddingLHEProducer_cfi')
-    if reselect:
-        process.externalLHEProducer.vertices=cms.InputTag("offlineSlimmedPrimaryVertices","","RESELECT")
-    process.lheproduction = cms.Path(process.makeexternalLHEProducer)
-    process.schedule.insert(0,process.lheproduction)
-
-
-    process = customisoptions(process)
-    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier)],["MINIAODoutput"])
 
 
 def customiseGenerator(process, changeProcessname=True,reselect=False):
@@ -568,14 +579,7 @@ def customiseMerging_Reselect(process, changeProcessname=True):
 
 ################################ cross Customizers ###########################
 
-def customiseLHEandCleaning(process,reselect=False):
-    process._Process__name = "LHEembeddingCLEAN"
-    process = customiseCleaning(process,changeProcessname=False,reselect=reselect)
-    process = customiseLHE(process,changeProcessname=False,reselect=reselect)
-    return process
 
-def customiseLHEandCleaning_Reselect(process):
-    return customiseLHEandCleaning(process,reselect=True)
 
 ################################ additionla Customizer ###########################
 
