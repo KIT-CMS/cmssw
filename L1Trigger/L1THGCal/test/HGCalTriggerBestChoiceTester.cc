@@ -479,7 +479,6 @@ void HGCalTriggerBestChoiceTester::fillModule(const std::vector<HGCalDataFrame>&
                                               const HGCalBestChoiceDataPayload& fe_payload,
                                               const std::map<HGCalDetId, double>& simhit_energies,
                                               const std::unordered_map<uint32_t, double>& TC_simhit_energies)
-
 /*****************************************************************/
 {
   // HGC cells part
