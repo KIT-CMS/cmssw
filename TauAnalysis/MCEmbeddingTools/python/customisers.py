@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 
-### Various set of customise functions needed for embedding
+# Various set of customise functions needed for embedding
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Utilities import cleanUnscheduled
 
+from  PhysicsTools.NanoAOD.common_cff import ExtVar
 
 ################################ Customizer for skimming ###########################
 ### There are four different parts.
@@ -29,8 +30,6 @@ class module_manipulate():
         self.merger_name = manipulator_name+"ColMerger"
         self.cleaner_name = manipulator_name+"ColCleaner"
         self.merge_prefix = merge_prefix
-
-
 
 
 to_bemanipulate = []
@@ -73,6 +72,7 @@ to_bemanipulate.append(module_manipulate(module_name = 'dt1DCosmicRecHits', mani
 to_bemanipulate.append(module_manipulate(module_name = 'csc2DRecHits', manipulator_name = "CSCRecHit", steps = ["SELECT","CLEAN"]  ))
 to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator_name = "RPCRecHit",  steps = ["SELECT","CLEAN"] ))
 
+
 def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
     outputModulesList = [key for key,value in process.outputModules.iteritems()]
     for outputModule in outputModulesList:
@@ -86,6 +86,7 @@ def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
 
 
 ################################ Customizer for Selecting ###########################
+
 
 def keepSelected(dataTier):
      ret_vstring = cms.untracked.vstring(
@@ -103,20 +104,23 @@ def keepSelected(dataTier):
             ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_"+dataTier)
      return ret_vstring
 
+
 def customiseSelecting(process,reselect=False):
     if reselect:
         process._Process__name = "RESELECT"
         dataTier="RESELECT"
-        process.source.inputCommands = cms.untracked.vstring("drop *",
-            "keep *_*_*_LHC",
-            "keep *_*_*_HLT",
-        )
+        # process.source.inputCommands = cms.untracked.vstring("drop *",
+        #     "keep *_*_*_LHC",
+        #     "keep *_*_*_HLT",
+        # )
     else:
         process._Process__name = "SELECT"
         dataTier="SELECT"
 
     process.load('TauAnalysis.MCEmbeddingTools.SelectingProcedure_cff')
     process.patMuonsAfterKinCuts.src = cms.InputTag("slimmedMuons","",dataTier)
+    process.selectedMuonsForEmbedding.PuppiMet = cms.InputTag("slimmedMETsPuppi","",dataTier)
+    process.selectedMuonsForEmbedding.Met = cms.InputTag("slimmedMETs","",dataTier)
     process.patMuonsAfterID = process.patMuonsAfterLooseID.clone()
 
     process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
@@ -131,10 +135,14 @@ def customiseSelecting(process,reselect=False):
     process = customisoptions(process)
     return modify_outputModules(process,[keepSelected(dataTier)])
 
+
 def customiseSelecting_Reselect(process):
     return customiseSelecting(process,reselect=True)
 
-################################ Customizer for cleaining ###########################
+
+################################ Customizer for cleaning ###########################
+
+
 def keepCleaned(dataTier):
      ret_vstring = cms.untracked.vstring(
 #	 	                 "drop *_*_*_LHEembeddingCLEAN",
@@ -191,6 +199,8 @@ def customiseCleaning(process, changeProcessname=True,reselect=False):
     return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier)],["MINIAODoutput"])
 
 ################################ Customizer for LHE ###########################
+
+
 def keepLHE():
     ret_vstring = cms.untracked.vstring()
     ret_vstring.append("keep *_externalLHEProducer_*_LHEembedding")
@@ -222,9 +232,9 @@ def customiseLHEandCleaning(process,reselect=False):
     process = customiseLHE(process,changeProcessname=False,reselect=reselect)
     return process
 
+
 def customiseLHEandCleaning_Reselect(process):
     return customiseLHEandCleaning(process,reselect=True)
-
 
 
 ################################ Customizer for simulaton ###########################
@@ -232,8 +242,6 @@ def customiseLHEandCleaning_Reselect(process):
 
 def keepSimulated(process, processname="SIMembedding"):
     ret_vstring = cms.untracked.vstring()
-
-
     for akt_manimod in to_bemanipulate:
         if "MERGE" in akt_manimod.steps:
             ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_{}".format(processname))
@@ -242,6 +250,7 @@ def keepSimulated(process, processname="SIMembedding"):
     ret_vstring.append("keep *_glbTrackQual_*_{}".format(processname))
     ret_vstring.append("keep *_generator_*_{}".format(processname))
     ret_vstring.append("keep *_addPileupInfo_*_{}".format(processname))
+    ret_vstring.append("keep *_selectedMuonsForEmbedding_*_*")
     ret_vstring.append("keep *_slimmedAddPileupInfo_*_*")
     ret_vstring.append("keep *_embeddingHltPixelVertices_*_*")
     ret_vstring.append("keep *_*_vertexPosition_*")
@@ -309,6 +318,7 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 
     return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated()],["AODSIMoutput"])
 
+
 def customiseGenerator_Reselect(process):
     return customiseGenerator(process,reselect=True)
 
@@ -325,7 +335,7 @@ def customiseGenerator_preHLT(process, changeProcessname=True,reselect=False):
 
     process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
     process.VtxSmeared = process.VtxCorrectedToInput.clone()
-    print "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
+    print("Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector.")
 
     # Disable noise simulation
     process.mix.digitizers.castor.doNoise = cms.bool(False)
@@ -347,8 +357,10 @@ def customiseGenerator_preHLT(process, changeProcessname=True,reselect=False):
 
     return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated(process, processname="SIMembeddingpreHLT")],["AODSIMoutput"])
 
+
 def customiseGenerator_preHLT_Reselect(process):
     return customiseGenerator_preHLT(process,reselect=True)
+
 
 def customiseGenerator_HLT(process, changeProcessname=True,reselect=False):
     if reselect:
@@ -361,7 +373,7 @@ def customiseGenerator_HLT(process, changeProcessname=True,reselect=False):
     ## here correct the vertex collection
     process.load('TauAnalysis.MCEmbeddingTools.EmbeddingBeamSpotOnline_cfi')
     process.hltOnlineBeamSpot = process.onlineEmbeddingBeamSpotProducer.clone()
-    print "Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot."
+    print("Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot.")
 
     # Replace HLT vertexing with vertex taken from LHE step
     process.load('TauAnalysis.MCEmbeddingTools.EmbeddingHltPixelVerticesProducer_cfi')
@@ -374,10 +386,19 @@ def customiseGenerator_HLT(process, changeProcessname=True,reselect=False):
     process = customisoptions(process)
     ##process = fix_input_tags(process)
 
-    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepLHE(),keepSimulated(process, processname="SIMembeddingpreHLT"),keepSimulated(process, processname="SIMembeddingHLT")],["AODSIMoutput"])
+    return modify_outputModules(process,
+        [
+            keepSelected(dataTier),
+            keepCleaned(dataTier),
+            keepLHE(),
+            keepSimulated(process, processname="SIMembeddingpreHLT"),
+            keepSimulated(process, processname="SIMembeddingHLT")
+        ],["AODSIMoutput"])
+
 
 def customiseGenerator_HLT_Reselect(process):
     return customiseGenerator_HLT(process,reselect=True)
+
 
 def customiseGenerator_postHLT(process, changeProcessname=True,reselect=False):
     if reselect:
@@ -402,17 +423,32 @@ def customiseGenerator_postHLT(process, changeProcessname=True,reselect=False):
     process = customisoptions(process)
     ##process = fix_input_tags(process)
 
-    return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(dataTier),keepSimulated(process, processname="SIMembeddingpreHLT"),keepSimulated(process, processname="SIMembeddingHLT"),keepSimulated(process)],["AODSIMoutput"])
+    return modify_outputModules(process,
+    [
+        keepSelected(dataTier),
+        keepCleaned(dataTier),
+        keepLHE(),
+        keepSimulated(process, processname="SIMembeddingpreHLT"),
+        keepSimulated(process, processname="SIMembeddingHLT"),
+        keepSimulated(process, processname="SIMembedding")
+    ],
+        ["AODSIMoutput"])
+
 
 def customiseGenerator_postHLT_Reselect(process):
     return customiseGenerator_postHLT(process,reselect=True)
 
 ################################ Customizer for merging ###########################
+
+
 def keepMerged(dataTier="SELECT"):
     ret_vstring = cms.untracked.vstring()
     ret_vstring.append("drop *_*_*_"+dataTier)
     ret_vstring.append("keep *_prunedGenParticles_*_MERGE")
     ret_vstring.append("keep *_generator_*_SIMembeddingpreHLT")
+    ret_vstring.append("keep *_generator_*_SIMembeddingHLT")
+    ret_vstring.append("keep *_generator_*_SIMembedding")
+    ret_vstring.append("keep *_selectedMuonsForEmbedding_*_*")
     return ret_vstring
 
 
@@ -430,6 +466,8 @@ def customiseKeepPrunedGenParticles(process,reselect=False):
     process.keep_step += process.prunedGenParticles
     process.load('PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi')
     process.keep_step += process.packedGenParticles
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
+    process.keep_step += process.slimmedGenJets
 
     process.load('PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi')
     process.keep_step += process.muonMatch
@@ -577,11 +615,38 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 def customiseMerging_Reselect(process, changeProcessname=True):
     return customiseMerging(process, changeProcessname=changeProcessname, reselect=True)
 
+
+################################ Customize NanoAOD ################################
+
+
+def customiseNanoAOD(process):
+
+    process.embeddingTable = cms.EDProducer("GlobalVariablesTableProducer",
+        name = cms.string("TauEmbedding"),
+        doc = cms.string("TauEmbedding"),
+        variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+            TauEmbedding_isMediumLeadingMuon = ExtVar(cms.InputTag("selectedMuonsForEmbedding","isMediumLeadingMuon"), bool, doc = "leading muon ID (medium)"),
+            TauEmbedding_isMediumTrailingMuon = ExtVar(cms.InputTag("selectedMuonsForEmbedding","isMediumTrailingMuon"), bool, doc = "trailing muon ID (medium)"),
+            TauEmbedding_isTightLeadingMuon = ExtVar(cms.InputTag("selectedMuonsForEmbedding","isTightLeadingMuon"), bool, doc = "leading muon ID (tight)"),
+            TauEmbedding_isTightTrailingMuon = ExtVar(cms.InputTag("selectedMuonsForEmbedding","isTightTrailingMuon"), bool, doc = "trailing muon ID (tight)"),
+            TauEmbedding_initialMETEt  = ExtVar(cms.InputTag("selectedMuonsForEmbedding","initialMETEt"), float, doc = "MET Et of selected event"),
+            TauEmbedding_initialMETphi = ExtVar(cms.InputTag("selectedMuonsForEmbedding","initialMETphi"), float, doc = "MET phi of selected event"),
+            TauEmbedding_initialPuppiMETEt  = ExtVar(cms.InputTag("selectedMuonsForEmbedding","initialPuppiMETEt"), float, doc = "PuppiMET Et of selected event"),
+            TauEmbedding_initialPuppiMETphi = ExtVar(cms.InputTag("selectedMuonsForEmbedding","initialPuppiMETphi"), float, doc = "PuppiMET phi of selected event"),
+        ),
+    )
+    process.embeddingTableTask = cms.Task(process.embeddingTable)
+    # embeddingSched = cms.Schedule(embeddingTableTask)
+    process.schedule.associate(process.embeddingTableTask)
+
+    return process
+
 ################################ cross Customizers ###########################
 
 
 
-################################ additionla Customizer ###########################
+################################ additional Customizer ###########################
+
 
 def customisoptions(process):
     if not hasattr(process, "options"):
@@ -597,16 +662,19 @@ def customisoptions(process):
 
 ############################### MC specific Customizer ###########################
 
+
 def customiseFilterZToMuMu(process):
     process.load("TauAnalysis.MCEmbeddingTools.DYToMuMuGenFilter_cfi")
     process.ZToMuMuFilter = cms.Path(process.dYToMuMuGenFilter)
     process.schedule.insert(-1,process.ZToMuMuFilter)
     return process
 
+
 def customiseFilterTTbartoMuMu(process):
     process.load("TauAnalysis.MCEmbeddingTools.TTbartoMuMuGenFilter_cfi")
     process.MCFilter = cms.Path(process.TTbartoMuMuGenFilter)
     return customiseMCFilter(process)
+
 
 def customiseMCFilter(process):
     process.schedule.insert(-1,process.MCFilter)
@@ -615,6 +683,7 @@ def customiseMCFilter(process):
         outputModule = getattr(process, outputModule)
         outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("MCFilter"))
     return process
+
 
 def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSegments","rpcRecHits"]):
     def change_tags_process(test_input):
@@ -636,7 +705,7 @@ def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSeg
                 else:
                     change_tags_process(pset[key])
         else:
-            print "must be python dict not a ",type(pset)
+            print("must be python dict not a {}".format(type(pset)))
 
     for module in process.producers_():
         search_for_tags(getattr(process, module).__dict__)
