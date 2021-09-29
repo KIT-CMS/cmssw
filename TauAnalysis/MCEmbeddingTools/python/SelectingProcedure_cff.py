@@ -69,7 +69,12 @@ ZmumuCandidatesFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 selectedMuonsForEmbedding = cms.EDProducer("MuMuForEmbeddingSelector",
-    ZmumuCandidatesCollection = cms.InputTag("ZmumuCandidates")
+    ZmumuCandidatesCollection = cms.InputTag("ZmumuCandidates"),
+    use_zmass = cms.bool(True),
+    inputTagVertex = cms.InputTag("offlinePrimaryVertices"),
+    inputTagBeamSpot = cms.InputTag("offlineBeamSpot"),
+    PuppiMet = cms.InputTag("slimmedMETsPuppi"),
+    Met = cms.InputTag("slimmedMETs"),
 )
 
 makePatMuonsZmumuSelection = cms.Sequence(
