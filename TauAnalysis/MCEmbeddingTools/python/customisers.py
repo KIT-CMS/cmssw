@@ -460,7 +460,6 @@ def keepSimulated(process, processname="SIMembedding"):
                 ]
             ):
                 ret_vstring.append(entry)
-    print(ret_vstring)
     return ret_vstring
 
 
