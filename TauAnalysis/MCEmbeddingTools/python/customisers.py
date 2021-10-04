@@ -233,6 +233,7 @@ def keepSelected(dataTier):
         # "drop *_*_*_"+dataTier,
         "keep *_patMuonsAfterID_*_" + dataTier,
         "keep *_slimmedMuons_*_" + dataTier,
+        "keep *_slimmedMuonTrackExtras_*_" + dataTier,
         "keep *_selectedMuonsForEmbedding_*_" + dataTier,
         "keep recoVertexs_offlineSlimmedPrimaryVertices_*_" + dataTier,
         "keep *_firstStepPrimaryVertices_*_" + dataTier,
@@ -294,6 +295,7 @@ def keepCleaned(dataTier):
         "drop *_*_*_" + dataTier,
         "keep *_patMuonsAfterID_*_" + dataTier,
         "keep *_slimmedMuons_*_" + dataTier,
+        # "keep *_slimmedMuonTrackExtras_*_" + dataTier,
         "keep *_selectedMuonsForEmbedding_*_" + dataTier,
         "keep recoVertexs_offlineSlimmedPrimaryVertices_*_" + dataTier,
         "keep *_firstStepPrimaryVertices_*_" + dataTier,
@@ -447,6 +449,8 @@ def keepSimulated(process, processname="SIMembedding"):
             process.RAWSIMEventContent.outputCommands
         )
         for entry in rawreco_commands_excl:
+            if processname == "SIMembeddingpreHLT" and "muonReducedTrackExtras" in entry:
+                continue
             if not any(
                 x in entry
                 for x in [
@@ -456,6 +460,7 @@ def keepSimulated(process, processname="SIMembedding"):
                 ]
             ):
                 ret_vstring.append(entry)
+    print(ret_vstring)
     return ret_vstring
 
 
@@ -839,8 +844,6 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     # process.merge_step.remove(process.particleFlowTmp)
 
     process.merge_step.remove(process.hcalnoise)
-    process.merge_step.remove(process.lowPtGsfElectronTask)
-    process.merge_step.remove(process.gsfTracksOpenConversions)
 
     process.load("CommonTools.ParticleFlow.genForPF2PAT_cff")
 
