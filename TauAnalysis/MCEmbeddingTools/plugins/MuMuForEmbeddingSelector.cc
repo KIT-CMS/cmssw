@@ -202,8 +202,8 @@ MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSe
    iEvent.put(std::make_unique<float>(met->at(0).phi()), "initialMETphi");
    iEvent.put(std::make_unique<float>(puppimet->at(0).et()), "initialPuppiMETEt");
    iEvent.put(std::make_unique<float>(puppimet->at(0).phi()), "initialPuppiMETphi");
-   edm::LogDebug("MuMuForEmbeddingSelector") << "PuppiMet: " << puppimet->at(0).et() << " phi: " << puppimet->at(0).phi();
-   edm::LogDebug("MuMuForEmbeddingSelector") << "MET: " << met->at(0).et() << " phi: " << met->at(0).phi();
+   // edm::LogDebug("MuMuForEmbeddingSelector") << "PuppiMet: " << puppimet->at(0).et() << " phi: " << puppimet->at(0).phi();
+   // edm::LogDebug("MuMuForEmbeddingSelector") << "MET: " << met->at(0).et() << " phi: " << met->at(0).phi();
 }
 
 
