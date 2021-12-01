@@ -449,7 +449,10 @@ def keepSimulated(process, processname="SIMembedding"):
             process.RAWSIMEventContent.outputCommands
         )
         for entry in rawreco_commands_excl:
-            if processname == "SIMembeddingpreHLT" and "muonReducedTrackExtras" in entry:
+            if (
+                processname == "SIMembeddingpreHLT"
+                and "muonReducedTrackExtras" in entry
+            ):
                 continue
             if not any(
                 x in entry
@@ -797,7 +800,7 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
                         instance,
                         "LHEembeddingCLEAN",
                     )
-                )  ##  Mayb make some process history magic which finds out if it was CLEAN or LHEembeddingCLEAN step
+                )
             setattr(
                 process,
                 akt_manimod.module_name,
@@ -868,43 +871,58 @@ def customiseNanoAOD(process):
         "GlobalVariablesTableProducer",
         name=cms.string("TauEmbedding"),
         doc=cms.string("TauEmbedding"),
-        variables=cms.PSet(  # NOTA BENE: we don't copy PTVars here!
-            TauEmbedding_isMediumLeadingMuon=ExtVar(
+        variables=cms.PSet(
+            nInitialPairCandidates=ExtVar(
+                cms.InputTag("selectedMuonsForEmbedding", "nPairCandidates"),
+                float,
+                doc="number of muons pairs suitable for selection (for internal studies only)",
+            ),
+            SelectionOldMass=ExtVar(
+                cms.InputTag("selectedMuonsForEmbedding", "oldMass"),
+                float,
+                doc="Mass of the Dimuon pair using the old selection algorithm (for internal studies only)",
+            ),
+            SelectionNewMass=ExtVar(
+                cms.InputTag("selectedMuonsForEmbedding", "newMass"),
+                float,
+                doc="Mass of the Dimuon pair using the new selection algorithm (for internal studies only)",
+            ),
+            isMediumLeadingMuon=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "isMediumLeadingMuon"),
                 bool,
                 doc="leading muon ID (medium)",
             ),
-            TauEmbedding_isMediumTrailingMuon=ExtVar(
+            isMediumTrailingMuon=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "isMediumTrailingMuon"),
                 bool,
                 doc="trailing muon ID (medium)",
             ),
-            TauEmbedding_isTightLeadingMuon=ExtVar(
+            isTightLeadingMuon=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "isTightLeadingMuon"),
                 bool,
                 doc="leading muon ID (tight)",
             ),
-            TauEmbedding_isTightTrailingMuon=ExtVar(
+            isTightTrailingMuon=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "isTightTrailingMuon"),
                 bool,
                 doc="trailing muon ID (tight)",
             ),
-            TauEmbedding_initialMETEt=ExtVar(
+            initialMETEt=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "initialMETEt"),
                 float,
                 doc="MET Et of selected event",
             ),
-            TauEmbedding_initialMETphi=ExtVar(
+            initialMETphi=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "initialMETphi"),
                 float,
                 doc="MET phi of selected event",
             ),
-            TauEmbedding_initialPuppiMETEt=ExtVar(
+            initialPuppiMETEt=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "initialPuppiMETEt"),
                 float,
                 doc="PuppiMET Et of selected event",
             ),
-            TauEmbedding_initialPuppiMETphi=ExtVar(
+            initialPuppiMETphi=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "initialPuppiMETphi"),
                 float,
                 doc="PuppiMET phi of selected event",
@@ -912,7 +930,6 @@ def customiseNanoAOD(process):
         ),
     )
     process.embeddingTableTask = cms.Task(process.embeddingTable)
-    # embeddingSched = cms.Schedule(embeddingTableTask)
     process.schedule.associate(process.embeddingTableTask)
 
     return process
