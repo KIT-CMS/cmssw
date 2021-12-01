@@ -181,9 +181,11 @@ MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }
    }
    if(use_zmass){
+      // edm::LogDebug("MuMuForEmbeddingSelector") << "Using Z mass candidate" << chosenZCand_zmass->mass();
       chosenZCand = chosenZCand_zmass;
    }
    else {
+      // edm::LogDebug("MuMuForEmbeddingSelector") << "Using largest mass candidate" << chosenZCand_largest->mass();
       chosenZCand = chosenZCand_largest;
    }
    std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod(new edm::RefVector<pat::MuonCollection>());
