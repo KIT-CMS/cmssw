@@ -16,6 +16,9 @@ typedef MuonDetCleaner<CSCDetId, CSCRecHit2D> CSCRecHitColCleaner;
 typedef MuonDetCleaner<DTLayerId, DTRecHit1DPair> DTRecHitColCleaner;
 typedef MuonDetCleaner<RPCDetId, RPCRecHit> RPCRecHitColCleaner;
 
+typedef MuonDetCleaner<CSCDetId, CSCSegment> CSCSegmentColCleaner;
+typedef MuonDetCleaner<DTChamberId, DTRecSegment4D> DTRecSegment4DColCleaner;
+
 
 //-------------------------------------------------------------------------------
 // define 'getDetIds' functions used for different types of recHits
@@ -47,6 +50,18 @@ uint32_t MuonDetCleaner<RPCDetId, RPCRecHit>::getRawDetId(const RPCRecHit& recHi
   return recHit.rpcId().rawId();
 }
 
+
+template <>
+uint32_t MuonDetCleaner<CSCDetId, CSCSegment>::getRawDetId(const CSCSegment& recHit)
+{
+  return recHit.cscDetId().rawId();
+}
+
+template <>
+uint32_t MuonDetCleaner<DTChamberId, DTRecSegment4D>::getRawDetId(const DTRecSegment4D& recHit)
+{
+  return recHit.geographicalId().rawId();
+}
 
 //-------------------------------------------------------------------------------
 // find out what the kind of RecHit used by imput muons rechit
@@ -95,6 +110,31 @@ bool MuonDetCleaner<RPCDetId, RPCRecHit>::checkrecHit(const TrackingRecHit& recH
 
 
 
+
+template <>
+bool MuonDetCleaner<CSCDetId, CSCSegment>::checkrecHit(const TrackingRecHit& recHit)
+{	    
+   const std::type_info &hit_type = typeid(recHit);
+   if (hit_type == typeid(CSCSegment))  {return true;}  // This should be the default one (which are included in the global (outer) muon track)
+   //else {std::cout<<"else "<<hit_type.name()<<std::endl;}    
+   return false;
+}
+
+template <>
+bool MuonDetCleaner<DTChamberId, DTRecSegment4D>::checkrecHit(const TrackingRecHit& recHit)
+{	    
+   const std::type_info &hit_type = typeid(recHit);
+   if (hit_type == typeid(DTRecSegment4D))  {return true;}  // This should be the default one (which are included in the global (outer) muon track)
+   else if (hit_type == typeid(DTRecHit1D)) {return true;}
+   else if (hit_type == typeid(DTSLRecCluster)) {return true; }
+   else if (hit_type == typeid(DTSLRecSegment2D)) {return true; }
+  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}	    
+   return false;
+}
+
+
 DEFINE_FWK_MODULE(CSCRecHitColCleaner);
 DEFINE_FWK_MODULE(DTRecHitColCleaner);
 DEFINE_FWK_MODULE(RPCRecHitColCleaner);
+DEFINE_FWK_MODULE(CSCSegmentColCleaner);
+DEFINE_FWK_MODULE(DTRecSegment4DColCleaner);
