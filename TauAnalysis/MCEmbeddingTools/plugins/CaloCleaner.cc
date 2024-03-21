@@ -1,7 +1,6 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/CaloCleaner.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
@@ -11,7 +10,6 @@ typedef CaloCleaner<EcalRecHit> EcalRecHitColCleaner;
 typedef CaloCleaner<HBHERecHit> HBHERecHitColCleaner;
 typedef CaloCleaner<HFRecHit> HFRecHitColCleaner;
 typedef CaloCleaner<HORecHit> HORecHitColCleaner;
-typedef CaloCleaner<CastorRecHit> CastorRecHitColCleaner;
 typedef CaloCleaner<ZDCRecHit> ZDCRecHitColCleaner;
 
 template <typename T>
@@ -136,13 +134,8 @@ void CaloCleaner<HFRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::ma
 }
 
 template <>
-void CaloCleaner<CastorRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::map<uint32_t, float> *cor_map) {
-  return;  // No corrections for Castor
-}
-
-template <>
 void CaloCleaner<ZDCRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::map<uint32_t, float> *cor_map) {
-  return;  // No corrections for Castor
+  return;  // No corrections for ZDC
 }
 
 DEFINE_FWK_MODULE(EcalRecHitColCleaner);
@@ -150,5 +143,4 @@ DEFINE_FWK_MODULE(HBHERecHitColCleaner);
 DEFINE_FWK_MODULE(HORecHitColCleaner);
 // no  need for cleaning outside of tracker, so just a copy of the old collection
 DEFINE_FWK_MODULE(HFRecHitColCleaner);
-DEFINE_FWK_MODULE(CastorRecHitColCleaner);
 DEFINE_FWK_MODULE(ZDCRecHitColCleaner);

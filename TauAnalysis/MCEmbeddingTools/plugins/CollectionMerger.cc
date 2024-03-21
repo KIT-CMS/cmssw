@@ -51,7 +51,6 @@ typedef CollectionMerger<edm::SortedCollection<EcalRecHit>, EcalRecHit> EcalRecH
 typedef CollectionMerger<edm::SortedCollection<HBHERecHit>, HBHERecHit> HBHERecHitColMerger;
 typedef CollectionMerger<edm::SortedCollection<HFRecHit>, HFRecHit> HFRecHitColMerger;
 typedef CollectionMerger<edm::SortedCollection<HORecHit>, HORecHit> HORecHitColMerger;
-typedef CollectionMerger<edm::SortedCollection<CastorRecHit>, CastorRecHit> CastorRecHitColMerger;
 typedef CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit> ZDCRecHitColMerger;
 
 typedef CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair>>, DTRecHit1DPair> DTRecHitColMerger;
@@ -336,13 +335,6 @@ void CollectionMerger<edm::SortedCollection<HORecHit>, HORecHit>::fill_output_ob
   fill_output_obj_calo(output, inputCollections);
 }
 
-template <>
-void CollectionMerger<edm::SortedCollection<CastorRecHit>, CastorRecHit>::fill_output_obj(
-    edm::Event &iEvent,
-    std::unique_ptr<MergeCollection> &output,
-    std::vector<edm::Handle<MergeCollection>> &inputCollections) {
-  fill_output_obj_calo(output, inputCollections);
-}
 
 template <>
 void CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit>::fill_output_obj(
@@ -394,7 +386,6 @@ DEFINE_FWK_MODULE(EcalRecHitColMerger);
 DEFINE_FWK_MODULE(HBHERecHitColMerger);
 DEFINE_FWK_MODULE(HFRecHitColMerger);
 DEFINE_FWK_MODULE(HORecHitColMerger);
-DEFINE_FWK_MODULE(CastorRecHitColMerger);
 DEFINE_FWK_MODULE(ZDCRecHitColMerger);
 
 DEFINE_FWK_MODULE(DTRecHitColMerger);

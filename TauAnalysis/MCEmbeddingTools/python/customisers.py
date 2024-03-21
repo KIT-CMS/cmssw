@@ -206,9 +206,6 @@ to_bemanipulate.append(
 to_bemanipulate.append(
     module_manipulate(module_name="hfreco", manipulator_name="HFRecHit")
 )
-to_bemanipulate.append(
-    module_manipulate(module_name="castorreco", manipulator_name="CastorRecHit")
-)
 
 
 to_bemanipulate.append(
@@ -595,7 +592,6 @@ def customiseGenerator(process, changeProcessname=True, reselect=False):
     process.reconstruction.remove(process.offlineBeamSpot)
 
     # Disable noise simulation
-    process.mix.digitizers.castor.doNoise = cms.bool(False)
 
     process.mix.digitizers.ecal.doESNoise = cms.bool(False)
     process.mix.digitizers.ecal.doENoise = cms.bool(False)
