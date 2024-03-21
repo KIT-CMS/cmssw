@@ -28,7 +28,6 @@ CaloCleaner<T>::CaloCleaner(const edm::ParameterSet &iConfig)
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
-  // trackAssociator_.useDefaultPropagator();
 }
 
 template <typename T>
@@ -49,8 +48,6 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
   // Fill the correction map
   for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
-    // get the basic informaiton like fill reco mouon does
-    //     RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc
     const reco::Track *track = nullptr;
     if (iMuon->track().isNonnull())
       track = iMuon->track().get();
@@ -68,7 +65,6 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   for (auto input_ : inputs_) {
     std::unique_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
     edm::Handle<RecHitCollection> recHitCollection;
-    // iEvent.getByToken(input_.second[0], recHitCollection);
     iEvent.getByToken(input_.second, recHitCollection);
     for (typename RecHitCollection::const_iterator recHit = recHitCollection->begin();
          recHit != recHitCollection->end();
@@ -83,14 +79,6 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       } else {
         recHitCollection_output->push_back(*recHit);
       }
-      /* For the inveted collection
-           if (correction_map[recHit->detid().rawId()] > 0){
-          float new_energy =   correction_map[recHit->detid().rawId()];
-          if (new_energy < 0) new_energy =0;
-          T newRecHit(*recHit);
-          newRecHit.setEnergy(new_energy);
-          recHitCollection_output->push_back(newRecHit);
-            }*/
     }
     // Save the new collection
     recHitCollection_output->sort();
@@ -104,8 +92,7 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
 template <typename T>
 void CaloCleaner<T>::fill_correction_map(TrackDetMatchInfo *, std::map<uint32_t, float> *) {
-  assert(0);  // CV: make sure general function never gets called;
-              //     always use template specializations
+  assert(0);
 }
 
 template <>
@@ -120,7 +107,6 @@ void CaloCleaner<EcalRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::
     for (std::vector<const EcalRecHit *>::const_iterator hit = info->crossedEcalRecHits.begin();
          hit != info->crossedEcalRecHits.end();
          hit++) {
-      //    (*cor_map) [(*hit)->detid().rawId()] +=(*hit)->energy();
       (*cor_map)[(*hit)->detid().rawId()] = (*hit)->energy();
     }
   }

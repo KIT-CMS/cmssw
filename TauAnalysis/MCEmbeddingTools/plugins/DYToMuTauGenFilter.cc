@@ -40,12 +40,6 @@ DYToMuTauGenFilter::~DYToMuTauGenFilter() {}
 
 bool DYToMuTauGenFilter::leptondecay(const reco::Candidate *d, int depth) {
   // returns true if the event has an leptonic decay
-  //  Debug Output
-  //  std::cout << std::string(4*depth, '-') << "---Hadroncheck-" << std::endl;
-  //  std::cout << std::string(4*depth, '-') << "|  Depth       " << depth << std::endl;
-  //  std::cout << std::string(4*depth, '-') << "|  ID:         " << d->pdgId() << std::endl;
-  //  std::cout << std::string(4*depth, '-') << "|  Status:     " << d->status() << std::endl;
-  //  std::cout << std::string(4*depth, '-') << "|  NDaughters: " << d->numberOfDaughters()<< std::endl;
   bool check = false;
   if (d->status() != 1) {
     if (d->numberOfDaughters() == 3) {
@@ -57,7 +51,6 @@ bool DYToMuTauGenFilter::leptondecay(const reco::Candidate *d, int depth) {
       return false;
     if (d->numberOfDaughters() < 4) {
       for (unsigned int k = 0; k < d->numberOfDaughters(); k++) {
-        // std::cout << std::string(4*depth, '-') << "| Daughter Number " << k << std::endl;
         int new_depth = depth + 1;
         if (leptondecay(d->daughter(k), new_depth) == true)
           check = true;

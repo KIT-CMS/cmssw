@@ -67,7 +67,6 @@ CollectionMerger<T1, T2>::CollectionMerger(const edm::ParameterSet &iConfig) {
   willconsume(iConfig);
   for (const auto &toproduce : inputs_) {
     std::string alias(iConfig.getParameter<std::string>("@module_label"));
-    //  std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
     willproduce(toproduce.first, alias);
   }
 }
@@ -209,7 +208,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_seed(edm::Event &iEvent,
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
   std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;  // I didn't find a more elegant way, so just build a good old fassion std::map
+      simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
@@ -285,8 +284,7 @@ template <typename T1, typename T2>
 void CollectionMerger<T1, T2>::fill_output_obj(edm::Event &iEvent,
                                                std::unique_ptr<MergeCollection> &output,
                                                std::vector<edm::Handle<MergeCollection>> &inputCollections) {
-  assert(0);  // CV: make sure general function never gets called;
-              //     always use template specializations
+  assert(0);
 }
 
 // Start with the Tracker collections
@@ -306,7 +304,6 @@ void CollectionMerger<edmNew::DetSetVector<SiStripCluster>, SiStripCluster>::fil
   fill_output_obj_tracker(output, inputCollections);
 }
 
-// Next are the Calo entries
 template <>
 void CollectionMerger<edm::SortedCollection<EcalRecHit>, EcalRecHit>::fill_output_obj(
     edm::Event &iEvent,
@@ -355,7 +352,6 @@ void CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit>::fill_output_
   fill_output_obj_calo(output, inputCollections);
 }
 
-// Here the Muon Chamber
 template <>
 void CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair>>, DTRecHit1DPair>::fill_output_obj(
     edm::Event &iEvent,
@@ -380,7 +376,6 @@ void CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit>>, RPCRec
   fill_output_obj_muonchamber(output, inputCollections);
 }
 
-// Here Electron Seeds
 template <>
 void CollectionMerger<std::vector<reco::ElectronSeed>, reco::ElectronSeed>::fill_output_obj(
     edm::Event &iEvent,
