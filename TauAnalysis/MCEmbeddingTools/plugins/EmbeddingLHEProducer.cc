@@ -56,9 +56,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-//
-// class declaration
-//
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -98,9 +95,9 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
   int particleToEmbed_;
   bool mirror_, rotate180_, InitialRecoCorrection_;
-  const double tauMass_ = 1.77682;
-  const double muonMass_ = 0.1057;
-  const double elMass_ = 0.00051;
+  static constexpr double tauMass_ = 1.77682;
+  static constexpr double muonMass_ = 0.1057;
+  static constexpr double elMass_ = 0.00051;
   const int embeddingParticles[3]{11, 13, 15};
 
   std::ofstream file;
@@ -227,24 +224,6 @@ void EmbeddingLHEProducer::beginRunProduce(edm::Run &run, edm::EventSetup const 
   // set number of processes: 1 for Z to tau tau
   heprup.resize(1);
 
-  // Process independent information
-
-  // beam particles ID (two protons)
-  // heprup.IDBMUP.first = 2212;
-  // heprup.IDBMUP.second = 2212;
-
-  // beam particles energies (both 6.5 GeV)
-  // heprup.EBMUP.first = 6500.;
-  // heprup.EBMUP.second = 6500.;
-
-  // take default pdf group for both beamparticles
-  // heprup.PDFGUP.first = -1;
-  // heprup.PDFGUP.second = -1;
-
-  // take certan pdf set ID (same as in officially produced DYJets LHE files)
-  // heprup.PDFSUP.first = -1;
-  // heprup.PDFSUP.second = -1;
-
   // master switch for event weight iterpretation (same as in officially produced DYJets LHE files)
   heprup.IDWTUP = 3;
 
@@ -276,13 +255,10 @@ void EmbeddingLHEProducer::fill_lhe_from_mumu(TLorentzVector &positiveLepton,
   TLorentzVector Z = positiveLepton + negativeLepton;
   int leptonPDGID = particleToEmbed_;
 
-  // double tau_ctau = 0.00871100; //cm
-  double tau_ctau0 = 8.71100e-02;  // mm (for Pythia)
+  static constexpr double tau_ctau0 = 8.71100e-02;  // mm (for Pythia)
   double tau_ctau_p =
-      tau_ctau0 * CLHEP::RandExponential::shoot(engine);  // return -std::log(HepRandom::getTheEngine()->flat());
-  // replaces tau = process[iNow].tau0() * rndmPtr->exp(); from pythia8212/src/ProcessContainer.cc which is not initialized for ProcessLevel:all = off mode (no beam particle mode)
+      tau_ctau0 * CLHEP::RandExponential::shoot(engine);
   double tau_ctau_n = tau_ctau0 * CLHEP::RandExponential::shoot(engine);
-  // std::cout<<"tau_ctau P: "<<tau_ctau_p<<" tau_ctau N:  "<<tau_ctau_n<<std::endl;
 
   fill_lhe_with_particle(outlhe, Z, 23, 9.0, 0);
   fill_lhe_with_particle(outlhe, positiveLepton, -leptonPDGID, 1.0, tau_ctau_p);
@@ -344,7 +320,6 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
 
   TVector3 boost_from_Z_to_LAB = Z.BoostVector();
   TVector3 boost_from_LAB_to_Z = -Z.BoostVector();
-
   // Boosting the two leptons to Z restframe, then both are back to back. This means, same 3-momentum squared
   positiveLepton.Boost(boost_from_LAB_to_Z);
   negativeLepton.Boost(boost_from_LAB_to_Z);
@@ -435,19 +410,15 @@ void EmbeddingLHEProducer::InitialRecoCorrection(TLorentzVector &positiveLepton,
     return;
   edm::LogInfo("TauEmbedding") << "Applying initial reconstruction correction";
   TLorentzVector Z = positiveLepton + negativeLepton;
-
   edm::LogInfo("TauEmbedding") << "MuMinus before. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M();
-  // std::cout << " MuMinus before. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M() << " Energy: " << negativeLepton.E() << std::endl;
   float diLeptonMass = (positiveLepton + negativeLepton).M();
   if (diLeptonMass > 60. && diLeptonMass < 122.) {
-    // std::cout << "DiLeptonMass " << diLeptonMass << std::endl;
-    float zmass = 91.1876;
+    static constexpr float zmass = 91.1876;
     float correction_deviation =
         5.;  // to ensure only a correction that drops corresponding to a Gaussian with mean zmass and std. dev. 5 GeV
     double EmbeddingCorrection =
         1.138;  // value derived by function fitting to fold embedded mass spectrum back to original selection when using mu -> mu embedding
-    EmbeddingCorrection =
-        EmbeddingCorrection /
+    EmbeddingCorrection /=
         (EmbeddingCorrection -
          (EmbeddingCorrection - 1.) * exp(-pow((diLeptonMass - zmass), 2.) / (2. * pow(correction_deviation, 2.))));
     EmbeddingCorrection = ((diLeptonMass + (EmbeddingCorrection - 1.) * zmass) / (diLeptonMass * EmbeddingCorrection));
@@ -469,7 +440,6 @@ void EmbeddingLHEProducer::InitialRecoCorrection(TLorentzVector &positiveLepton,
                               correctednegativeLeptonEnergy);
 
     edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M();
-    // std::cout << " MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M() << " Energy: " << negativeLepton.E() << std::endl;
   }
   return;
 }

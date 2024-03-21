@@ -59,7 +59,7 @@ private:
   edm::EDGetTokenT<edm::View<pat::MET>> theMETLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> thePuppiMETLabel_;
   bool use_zmass = false;
-  double ZMass = 91.0;
+  static constexpr double zmass = 91.1876;
 };
 
 //
@@ -135,8 +135,8 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
        ++iZCand) {
-    if (std::abs(ZMass - iZCand->mass()) < massDifference || massDifference < 0) {
-      massDifference = std::abs(ZMass - iZCand->mass());
+    if (std::abs(zmass - iZCand->mass()) < massDifference || massDifference < 0) {
+      massDifference = std::abs(zmass - iZCand->mass());
       chosenZCand_zmass = &(*iZCand);
     }
   }
@@ -152,10 +152,8 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
     }
   }
   if (use_zmass) {
-    // edm::LogDebug("MuMuForEmbeddingSelector") << "Using Z mass candidate" << chosenZCand_zmass->mass();
     chosenZCand = chosenZCand_zmass;
   } else {
-    // edm::LogDebug("MuMuForEmbeddingSelector") << "Using largest mass candidate" << chosenZCand_largest->mass();
     chosenZCand = chosenZCand_largest;
   }
 
@@ -181,8 +179,6 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   iEvent.put(std::make_unique<float>(met->at(0).phi()), "initialMETphi");
   iEvent.put(std::make_unique<float>(puppimet->at(0).et()), "initialPuppiMETEt");
   iEvent.put(std::make_unique<float>(puppimet->at(0).phi()), "initialPuppiMETphi");
-  // edm::LogDebug("MuMuForEmbeddingSelector") << "PuppiMet: " << puppimet->at(0).et() << " phi: " << puppimet->at(0).phi();
-  // edm::LogDebug("MuMuForEmbeddingSelector") << "MET: " << met->at(0).et() << " phi: " << met->at(0).phi();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

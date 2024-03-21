@@ -41,28 +41,10 @@ bool DYToMuMuGenFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup
     const reco::GenParticle gen_particle = (*gen_handle)[i];
     // Check if Z Boson decayed into two leptons
     if (gen_particle.pdgId() == 23 && gen_particle.numberOfDaughters() == 2) {
-      // Debug output
-      // std::cout << "pdgId" << gen_particle.pdgId() << std::endl;
-      // std::cout << "nDau" << gen_particle.numberOfDaughters() << std::endl;
-      // std::cout << "Dau1" << gen_particle->daughters->at(0).pdgId() << std::endl;
-      // std::cout << "Dau2" << gen_particle.numberOfDaughters() << std::endl;
-      // std::cout << "Dau1 " << gen_particle.daughter(0)->pdgId() << std::endl;
-      // std::cout << "Dau2 " << gen_particle.daughter(1)->pdgId() << std::endl;
-      // std::cout << gen_particle.daughter(1)->pdgId()+gen_particle.daughter(0)->pdgId() << std::endl;
-
       // Check if daugther particles are muons
       if (std::abs(gen_particle.daughter(0)->pdgId()) == 13 && std::abs(gen_particle.daughter(0)->eta()) < 2.6 &&
           std::abs(gen_particle.daughter(1)->eta()) < 2.6 && gen_particle.daughter(0)->pt() > 7 &&
           gen_particle.daughter(1)->pt() > 7) {
-        // std::cout << "pdgId" << gen_particle.pdgId() << std::endl;
-        // std::cout << "nDau" << gen_particle.numberOfDaughters() << std::endl;
-        // std::cout << "Dau1 " << gen_particle.daughter(0)->pdgId() << std::endl;
-        // std::cout << "Dau1 pt " << gen_particle.daughter(0)->pt() << std::endl;
-        // std::cout << "Dau1 pt " << gen_particle.daughter(0)->eta() << std::endl;
-        // std::cout << "Dau2 " << gen_particle.daughter(1)->pdgId() << std::endl;
-        // std::cout << "Dau2 pt " << gen_particle.daughter(1)->pt() << std::endl;
-        // std::cout << "Dau2 pt " << gen_particle.daughter(1)->eta() << std::endl;
-        // std::cout << gen_particle.daughter(1)->pdgId()+gen_particle.daughter(0)->pdgId() << std::endl;
         return true;
       } else {
         return false;
