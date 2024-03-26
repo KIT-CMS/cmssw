@@ -423,23 +423,14 @@ void EmbeddingLHEProducer::InitialRecoCorrection(TLorentzVector &positiveLepton,
          (EmbeddingCorrection - 1.) * exp(-pow((diLeptonMass - zmass), 2.) / (2. * pow(correction_deviation, 2.))));
     EmbeddingCorrection = ((diLeptonMass + (EmbeddingCorrection - 1.) * zmass) / (diLeptonMass * EmbeddingCorrection));
     double correctedpositiveLeptonEnergy = std::sqrt(
-        muonMass_ * muonMass_ + EmbeddingCorrection * positiveLepton.Px() * EmbeddingCorrection * positiveLepton.Px() +
-        EmbeddingCorrection * positiveLepton.Py() * EmbeddingCorrection * positiveLepton.Py() +
-        EmbeddingCorrection * positiveLepton.Pz() * EmbeddingCorrection * positiveLepton.Pz());
+        (pow(muonMass_, 2) / pow(EmbeddingCorrection, 2))  + pow(positiveLepton.Px(), 2) + pow(positiveLepton.Py(), 2) + pow(positiveLepton.Pz(), 2));
     double correctednegativeLeptonEnergy = std::sqrt(
-        muonMass_ * muonMass_ + EmbeddingCorrection * negativeLepton.Px() * EmbeddingCorrection * negativeLepton.Px() +
-        EmbeddingCorrection * negativeLepton.Py() * EmbeddingCorrection * negativeLepton.Py() +
-        EmbeddingCorrection * negativeLepton.Pz() * EmbeddingCorrection * negativeLepton.Pz());
-    positiveLepton.SetPxPyPzE(EmbeddingCorrection * positiveLepton.Px(),
-                              EmbeddingCorrection * positiveLepton.Py(),
-                              EmbeddingCorrection * positiveLepton.Pz(),
-                              correctedpositiveLeptonEnergy);
-    negativeLepton.SetPxPyPzE(EmbeddingCorrection * negativeLepton.Px(),
-                              EmbeddingCorrection * negativeLepton.Py(),
-                              EmbeddingCorrection * negativeLepton.Pz(),
-                              correctednegativeLeptonEnergy);
-
-    edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M();
+        (pow(muonMass_, 2) / pow(EmbeddingCorrection, 2))  + pow(negativeLepton.Px(), 2) + pow(negativeLepton.Py(), 2) + pow(negativeLepton.Pz(), 2));
+    positiveLepton.SetE(correctedpositiveLeptonEnergy);
+    negativeLepton.SetE(correctednegativeLeptonEnergy);
+    positiveLepton *= EmbeddingCorrection;
+    negativeLepton *= EmbeddingCorrection;
+  edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M();
   }
   return;
 }
