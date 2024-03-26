@@ -109,7 +109,7 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   const reco::CompositeCandidate *chosenZCand = nullptr;
   const reco::CompositeCandidate *chosenZCand_zmass = nullptr;
   const reco::CompositeCandidate *chosenZCand_largest = nullptr;
-  double massDifference = -1.0;
+  double massDifference = 9999;
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(theBeamSpotLabel_, beamSpot);
   edm::Handle<reco::VertexCollection> vertex;
@@ -121,12 +121,10 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   // get primary vertex
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
-  std::vector<reco::Vertex>::const_iterator vertexIt = vertex->begin();
-  std::vector<reco::Vertex>::const_iterator vertexEnd = vertex->end();
-  for (; vertexIt != vertexEnd; ++vertexIt) {
-    if (vertexIt->isValid() && !vertexIt->isFake()) {
-      posVtx = vertexIt->position();
-      errVtx = vertexIt->error();
+  for (const auto& vtx : *vertex) {
+    if (vtx.isValid() && !vtx.isFake()) {
+      posVtx = vtx.position();
+      errVtx = vtx.error();
       break;
     }
   }
@@ -135,7 +133,7 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
        ++iZCand) {
-    if (std::abs(zmass - iZCand->mass()) < massDifference || massDifference < 0) {
+    if (std::abs(zmass - iZCand->mass()) < massDifference) {
       massDifference = std::abs(zmass - iZCand->mass());
       chosenZCand_zmass = &(*iZCand);
     }
