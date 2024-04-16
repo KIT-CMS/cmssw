@@ -203,12 +203,10 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
 
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
-    simple_track_to_track_map[trackRef] =
-        trackRef;
+    simple_track_to_track_map[trackRef] = trackRef;
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
   }
 
@@ -341,8 +339,7 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(edm::Event &iEvent,
 
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
     simple_track_to_track_map[trackRef] =
@@ -434,8 +431,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
 
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
     simple_track_to_track_map[trackRef] =
@@ -448,8 +444,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
 
   edm::Handle<reco::GsfTrackCollection> gsftrack_new_col;
   iEvent.getByToken(inputs_fixgsftrackcol_, gsftrack_new_col);
-  std::map<reco::GsfTrackRef, reco::GsfTrackRef>
-      simple_gsftrack_to_gsftrack_map;
+  std::map<reco::GsfTrackRef, reco::GsfTrackRef> simple_gsftrack_to_gsftrack_map;
   for (unsigned abc = 0; abc < gsftrack_new_col->size(); ++abc) {
     reco::GsfTrackRef gsfTrackRef(gsftrack_new_col, abc);
     simple_gsftrack_to_gsftrack_map[((*gsftrack_ref_map)[gsfTrackRef])[0]] = gsfTrackRef;
@@ -460,8 +455,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
 
   edm::Handle<reco::MuonCollection> muon_new_col;
   iEvent.getByToken(inputs_fixmucol_, muon_new_col);
-  std::map<reco::MuonRef, reco::MuonRef>
-      simple_mu_to_mu_map;
+  std::map<reco::MuonRef, reco::MuonRef> simple_mu_to_mu_map;
   for (unsigned abc = 0; abc < muon_new_col->size(); ++abc) {
     reco::MuonRef muRef(muon_new_col, abc);
     simple_mu_to_mu_map[(*muon_ref_map)[muRef]] = muRef;

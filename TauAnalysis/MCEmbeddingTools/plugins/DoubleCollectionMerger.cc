@@ -62,7 +62,6 @@ void DoubleCollectionMerger<T1, T2, T3, T4>::produce(edm::Event &iEvent, const e
   }
 }
 
-
 template <typename T1, typename T2, typename T3, typename T4>
 void DoubleCollectionMerger<T1, T2, T3, T4>::fill_output_obj(
     std::unique_ptr<MergeCollection1> &output, std::vector<edm::Handle<MergeCollection1>> &inputCollections) {

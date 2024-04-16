@@ -121,7 +121,7 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   // get primary vertex
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
-  for (const auto& vtx : *vertex) {
+  for (const auto &vtx : *vertex) {
     if (vtx.isValid() && !vtx.isFake()) {
       posVtx = vtx.position();
       errVtx = vtx.error();

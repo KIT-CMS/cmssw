@@ -206,8 +206,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_seed(edm::Event &iEvent,
 
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
@@ -334,7 +333,6 @@ void CollectionMerger<edm::SortedCollection<HORecHit>, HORecHit>::fill_output_ob
     std::vector<edm::Handle<MergeCollection>> &inputCollections) {
   fill_output_obj_calo(output, inputCollections);
 }
-
 
 template <>
 void CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit>::fill_output_obj(
