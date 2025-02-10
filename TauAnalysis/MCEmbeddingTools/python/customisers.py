@@ -609,16 +609,12 @@ def customiseGenerator_HLT(process, changeProcessname=True, reselect=False):
     )
 
     # replace the original detector state filters in the HLT with a dummy module
-    process.hltPixelTrackerHVOn = cms.EDFilter("EmbeddingDetectorStateFilter",
-        DcsStatusLabel = cms.untracked.InputTag("hltScalersRawToDigi"),
-        DebugOn = cms.untracked.bool(False),
-        DetectorType = cms.untracked.string('pixel')
+    process.hltPixelTrackerHVOn = cms.EDFilter("HLTBool",
+        result = cms.bool(True)
     )
 
-    process.hltStripTrackerHVOn = cms.EDFilter("EmbeddingDetectorStateFilter",
-        DcsStatusLabel = cms.untracked.InputTag("hltScalersRawToDigi"),
-        DebugOn = cms.untracked.bool(False),
-        DetectorType = cms.untracked.string('sistrip')
+    process.hltStripTrackerHVOn = cms.EDFilter("HLTBool",
+        result = cms.bool(True)
     )
 
     process = customisoptions(process)
