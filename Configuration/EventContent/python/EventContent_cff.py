@@ -1052,5 +1052,6 @@ TauEmbeddingSimRecoEventContent.outputCommands.extend(TauEmbSimReco.outputComman
 TauEmbeddingMergeEventContent = MINIAODSIMEventContent.clone()
 TauEmbeddingMergeEventContent.outputCommands.extend(TauEmbMerge.outputCommands)
 
-TauEmbeddingNanoEventContent = NANOAODSIMEventContent.clone()
-TauEmbeddingNanoEventContent.outputCommands.extend(TauEmbNano.outputCommands)
+# needs to have NANOAOD in its name to be recognized by cmsDriver as a NANOAOD output so that NanoAODOutputModule is used
+TauEmbeddingNANOAODEventContent = NANOAODSIMEventContent.clone()
+TauEmbeddingNANOAODEventContent.outputCommands.extend(TauEmbNano.outputCommands)
