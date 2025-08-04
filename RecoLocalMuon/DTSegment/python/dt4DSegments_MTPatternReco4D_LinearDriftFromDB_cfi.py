@@ -26,3 +26,17 @@ dt4DCosmicSegments = cms.EDProducer("DTRecSegment4DProducer",
     # name of the rechit 2D collection in the event
     recHits2DLabel = cms.InputTag("dt2DCosmicSegments")
 )
+
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
+tau_embedding.toReplaceWith(dt4DSegments, cms.EDProducer("DTRecSegment4DColCleaner",
+    oldCollection = cms.VInputTag(cms.InputTag("dt4DSegments","","SELECT")),
+    **common_parameters
+))
+tau_embedding.toReplaceWith(dt4DCosmicSegments, cms.EDProducer("DTRecSegment4DColCleaner",
+    oldCollection = cms.VInputTag(cms.InputTag("dt4DCosmicSegments","","SELECT")),
+    **common_parameters
+))

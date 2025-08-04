@@ -23,3 +23,17 @@ dt1DCosmicRecHits = cms.EDProducer("DTRecHitProducer",
     #dtDigiLabel = cms.InputTag("dtunpacker")
     dtDigiLabel = cms.InputTag("muonDTDigis")
 )
+
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
+tau_embedding.toReplaceWith(dt1DRecHits, cms.EDProducer("DTRecHitColCleaner",
+    oldCollection = cms.VInputTag(cms.InputTag("dt1DRecHits","","SELECT")),
+    **common_parameters
+))
+tau_embedding.toReplaceWith(dt1DCosmicRecHits, cms.EDProducer("DTRecHitColCleaner",
+    oldCollection = cms.VInputTag(cms.InputTag("dt1DCosmicRecHits","","SELECT")),
+    **common_parameters
+))

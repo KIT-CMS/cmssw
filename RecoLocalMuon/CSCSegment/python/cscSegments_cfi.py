@@ -34,3 +34,12 @@ cscSegments = _cscSegmentProducer.clone(
 )
 
 
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
+tau_embedding.toReplaceWith(cscSegments, cms.EDProducer("CSCSegmentColCleaner",
+    oldCollection = cms.VInputTag(cms.InputTag("cscSegments","","SELECT")),
+    **common_parameters
+))

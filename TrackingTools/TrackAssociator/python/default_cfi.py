@@ -83,3 +83,20 @@ TrackAssociatorParameters = cms.PSet(
     ME0HitCollectionLabel = cms.InputTag("me0RecHits"),
     useHcal = cms.bool(True)
 )
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+tau_embedding.toModify(TrackAssociatorParameterBlock.TrackAssociatorParameters,
+    CSCSegmentCollectionLabel = cms.InputTag("cscSegments", "", "SELECT"),
+    CaloTowerCollectionLabel = cms.InputTag("towerMaker", "", "SELECT"),
+    DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments", "", "SELECT"),
+    EBRecHitCollectionLabel = cms.InputTag("ecalRecHit", "EcalRecHitsEB", "SELECT"),
+    EERecHitCollectionLabel = cms.InputTag("ecalRecHit", "EcalRecHitsEE", "SELECT"),
+    HBHERecHitCollectionLabel = cms.InputTag("hbhereco", "", "SELECT"),
+    HORecHitCollectionLabel = cms.InputTag("horeco", "", "SELECT"),
+    ME0HitCollectionLabel = cms.InputTag("me0RecHits", "", "SELECT"),
+    ME0SegmentCollectionLabel = cms.InputTag("me0Segments", "", "SELECT"),
+    RPCHitCollectionLabel = cms.InputTag("rpcRecHits", "", "SELECT"),
+    usePreshower = cms.bool(True)
+)
