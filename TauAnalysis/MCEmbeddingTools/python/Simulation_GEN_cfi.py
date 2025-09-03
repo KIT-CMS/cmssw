@@ -129,6 +129,18 @@ tau_embedding_mu_to_mu.toModify(
             "Final_States": cms.vstring("MuMu"),
         }
     },
+    # disable final state radiation for mu->mu embedding
+    PythiaParameters={
+        "processParameters": {
+            "processParameters": cms.vstring(
+                "JetMatching:merge = off",
+                "Init:showChangedSettings = off",
+                "Init:showChangedParticleData = off",
+                "ProcessLevel:all = off",
+                "PartonLevel:FSR = off",
+            )
+        }
+    }
 )
 # only one simulation needed, as the muons don't decay like taus and no wights need to be calculated.
 tau_embedding_mu_to_mu.toModify(generator, nAttempts=cms.uint32(1))
