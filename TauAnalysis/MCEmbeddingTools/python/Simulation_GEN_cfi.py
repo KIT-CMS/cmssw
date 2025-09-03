@@ -101,7 +101,7 @@ generator = cms.EDFilter(
     pythiaPylistVerbosity=cms.untracked.int32(1),
     filterEfficiency=cms.untracked.double(1.0),
     pythiaHepMCVerbosity=cms.untracked.bool(False),
-    comEnergy=cms.double(13000.0),
+    comEnergy=cms.double(13600.0),
     crossSection=cms.untracked.double(1.0),
     PythiaParameters=cms.PSet(
         pythia8CommonSettingsBlock,
@@ -117,6 +117,8 @@ generator = cms.EDFilter(
         ),
     ),
 )
+# Set the correct center of mass energy for run2
+(run2_common & ~run3_common).toModify(generator, comEnergy=cms.double(13000.0))
 
 ## This modifier sets the correct cuts for mu->mu embedding
 tau_embedding_mu_to_mu.toModify(
