@@ -11,8 +11,5 @@ ecalPreshowerRecHit = cms.EDProducer("ESRecHitProducer",
 ## Modify for the tau embedding methods cleaning step
 ##
 from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
-from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
-tau_embedding.toReplaceWith(ecalPreshowerRecHit, cms.EDProducer("EcalRecHitColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES","SELECT")),
-    **common_parameters
-))
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_ecalPreshowerRecHit_cleaner
+tau_embedding.toReplaceWith(ecalPreshowerRecHit, tau_embedding_ecalPreshowerRecHit_cleaner)

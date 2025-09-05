@@ -78,8 +78,5 @@ run2_common.toModify( csc2DRecHits,
 ## Modify for the tau embedding methods cleaning step
 ##
 from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
-from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
-tau_embedding.toReplaceWith(csc2DRecHits, cms.EDProducer("CSCRecHitColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("csc2DRecHits","","SELECT")),
-    **common_parameters
-))
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_csc2DRecHits_cleaner
+tau_embedding.toReplaceWith(csc2DRecHits, tau_embedding_csc2DRecHits_cleaner)

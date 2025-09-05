@@ -36,8 +36,5 @@ horeco = cms.EDProducer(
 ## Modify for the tau embedding methods cleaning step
 ##
 from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
-from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
-tau_embedding.toReplaceWith(horeco, cms.EDProducer("HORecHitColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("horeco","","SELECT")),
-    **common_parameters
-))
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_horeco_cleaner
+tau_embedding.toReplaceWith(horeco, tau_embedding_horeco_cleaner)

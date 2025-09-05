@@ -333,3 +333,9 @@ splitClustersInPhase2Pixel.toModify(siPixelClusters,
     forceXError = cms.double(25.0),
     forceYError = cms.double(100.0),
 )
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_siPixelClusters_cleaner
+tau_embedding.toReplaceWith(siPixelClusters, tau_embedding_siPixelClusters_cleaner)

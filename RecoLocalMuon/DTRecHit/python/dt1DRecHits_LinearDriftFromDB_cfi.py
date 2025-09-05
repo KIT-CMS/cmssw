@@ -28,12 +28,6 @@ dt1DCosmicRecHits = cms.EDProducer("DTRecHitProducer",
 ## Modify for the tau embedding methods cleaning step
 ##
 from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
-from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
-tau_embedding.toReplaceWith(dt1DRecHits, cms.EDProducer("DTRecHitColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("dt1DRecHits","","SELECT")),
-    **common_parameters
-))
-tau_embedding.toReplaceWith(dt1DCosmicRecHits, cms.EDProducer("DTRecHitColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("dt1DCosmicRecHits","","SELECT")),
-    **common_parameters
-))
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_dt1DRecHits_cleaner, tau_embedding_dt1DCosmicRecHits_cleaner
+tau_embedding.toReplaceWith(dt1DRecHits, tau_embedding_dt1DRecHits_cleaner)
+tau_embedding.toReplaceWith(dt1DCosmicRecHits, tau_embedding_dt1DCosmicRecHits_cleaner)

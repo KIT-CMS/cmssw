@@ -19,20 +19,12 @@ cmsDriver.py \
 ```
 """
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import (
     _tau_embedding_mu_to_e,
 )
 from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import (
     _tau_embedding_mu_to_mu,
 )
-from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
-
-# As we want to exploit the toModify and toReplaceWith features of the FWCore/ParameterSet/python/Config.py Modifier class,
-# we need a general modifier that is always applied.
-# maybe this can also be replaced by a specific embedding process modifier
-generalModifier = run2_common | run3_common
 
 externalLHEProducer = cms.EDProducer("EmbeddingLHEProducer",
     src = cms.InputTag("selectedMuonsForEmbedding","",""),
@@ -44,7 +36,8 @@ _tau_embedding_mu_to_mu.toModify(externalLHEProducer, particleToEmbed = cms.int3
 # if running mu->e embedding simulate electron (pid=11) instead of a tau (pid=15)
 _tau_embedding_mu_to_e.toModify(externalLHEProducer, particleToEmbed = cms.int32(11))
 
-generalModifier.toModify(bunchSpacingProducer, bunchSpacingOverride = cms.uint32(25), overrideBunchSpacing = cms.bool(True))
+# switch on bunch spacing override to 25ns for tau embedding in
+# RecoLuminosity/LumiProducer/python/bunchSpacingProducer_cfi.py
 
 
 embeddingLHEProducerTask = cms.Sequence(externalLHEProducer)

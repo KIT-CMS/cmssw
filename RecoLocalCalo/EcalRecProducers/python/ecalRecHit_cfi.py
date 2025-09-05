@@ -125,3 +125,9 @@ phase2_ecal_devel.toModify(ecalRecHit,
     recoverEEIsolatedChannels = False
 )
 
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_ecalRecHit_cleaner
+tau_embedding.toReplaceWith(ecalRecHit, tau_embedding_ecalRecHit_cleaner)
