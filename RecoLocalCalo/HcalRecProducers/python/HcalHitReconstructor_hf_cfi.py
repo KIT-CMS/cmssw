@@ -166,14 +166,3 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                                            )
 
                         ) # cms.EDProducers
-
-
-##
-## Modify for the tau embedding methods cleaning step
-##
-from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
-from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
-tau_embedding.toReplaceWith(hfreco, cms.EDProducer("HFRecHitColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("hfreco","","SELECT")),
-    **common_parameters
-))

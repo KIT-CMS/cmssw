@@ -51,12 +51,3 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (premix_stage2 & phase2_tracker).toModify(siPixelClusters,
     src = "mixData:Pixel"
 )
-##
-## Modify for the tau embedding methods cleaning step
-##
-from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
-from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import common_parameters
-tau_embedding.toReplaceWith(siPixelClusters, cms.EDProducer("PixelColCleaner",
-    oldCollection = cms.VInputTag(cms.InputTag("siPixelClusters","","SELECT")),
-    **common_parameters
-))
