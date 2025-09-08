@@ -30,7 +30,7 @@ dt4DCosmicSegments = cms.EDProducer("DTRecSegment4DProducer",
 ##
 ## Modify for the tau embedding methods cleaning step
 ##
-from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
 from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_dt4DSegments_cleaner, tau_embedding_dt4DCosmicSegments_cleaner
-tau_embedding.toReplaceWith(dt4DSegments, tau_embedding_dt4DSegments_cleaner)
-tau_embedding.toReplaceWith(dt4DCosmicSegments, tau_embedding_dt4DCosmicSegments_cleaner)
+tau_embedding_cleaning.toReplaceWith(dt4DSegments, tau_embedding_dt4DSegments_cleaner)
+tau_embedding_cleaning.toReplaceWith(dt4DCosmicSegments, tau_embedding_dt4DCosmicSegments_cleaner)

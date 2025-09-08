@@ -11,31 +11,32 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
 	--geometry DB:Extended \
 	--eventcontent TauEmbeddingSimGen \
 	--datatier RAWSIM \
-	--procModifiers tau_embedding_mu_to_mu \
+	--procModifiers tau_embedding_sim,tau_embedding_mu_to_mu \
     --era ... \
     --conditions ... \
     --filein ... \
     --fileout ...
 ```
 """
+
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-from Configuration.ProcessModifiers.tau_embedding_emu_cff import _tau_embedding_emu
-from Configuration.ProcessModifiers.tau_embedding_etauh_cff import _tau_embedding_etauh
+from Configuration.ProcessModifiers.tau_embedding_emu_cff import tau_embedding_emu
+from Configuration.ProcessModifiers.tau_embedding_etauh_cff import tau_embedding_etauh
 from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import (
-    _tau_embedding_mu_to_e,
+    tau_embedding_mu_to_e,
 )
 from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import (
-    _tau_embedding_mu_to_mu,
+    tau_embedding_mu_to_mu,
 )
 from Configuration.ProcessModifiers.tau_embedding_mutauh_cff import (
-    _tau_embedding_mutauh,
+    tau_embedding_mutauh,
 )
 from Configuration.ProcessModifiers.tau_embedding_tauhtauh_cff import (
-    _tau_embedding_tauhtauh,
+    tau_embedding_tauhtauh,
 )
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 from IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi import VtxSmeared
@@ -123,7 +124,7 @@ generator = cms.EDFilter(
 (run2_common & ~run3_common).toModify(generator, comEnergy=cms.double(13000.0))
 
 ## This modifier sets the correct cuts for mu->mu embedding
-_tau_embedding_mu_to_mu.toModify(
+tau_embedding_mu_to_mu.toModify(
     generator,
     HepMCFilter={
         "filterParameters": {
@@ -147,10 +148,10 @@ _tau_embedding_mu_to_mu.toModify(
     }
 )
 # only one simulation needed, as the muons don't decay like taus and no wights need to be calculated.
-_tau_embedding_mu_to_mu.toModify(generator, nAttempts=cms.uint32(1))
+tau_embedding_mu_to_mu.toModify(generator, nAttempts=cms.uint32(1))
 
 # This modifier sets the correct cuts for mu->e embedding
-_tau_embedding_mu_to_e.toModify(
+tau_embedding_mu_to_e.toModify(
     generator,
     HepMCFilter={
         "filterParameters": {
@@ -162,10 +163,10 @@ _tau_embedding_mu_to_e.toModify(
     },
 )
 # only one simulation needed, as the electrons don't decay like taus and no wights need to be calculated.
-_tau_embedding_mu_to_e.toModify(generator, nAttempts=cms.uint32(1))
+tau_embedding_mu_to_e.toModify(generator, nAttempts=cms.uint32(1))
 
 # This modifier sets the correct cuts for the taus decaying into one jet and one muon
-_tau_embedding_mutauh.toModify(
+tau_embedding_mutauh.toModify(
     generator,
     HepMCFilter={
         "filterParameters": {
@@ -178,7 +179,7 @@ _tau_embedding_mutauh.toModify(
 )
 
 # This modifier sets the correct cuts for the taus decaying into one jet and one electron
-_tau_embedding_etauh.toModify(
+tau_embedding_etauh.toModify(
     generator,
     HepMCFilter={
         "filterParameters": {
@@ -191,7 +192,7 @@ _tau_embedding_etauh.toModify(
 )
 
 # This modifier sets the correct cuts for the taus decaying into one electron and one muon
-_tau_embedding_emu.toModify(
+tau_embedding_emu.toModify(
     generator,
     HepMCFilter={
         "filterParameters": {
@@ -204,7 +205,7 @@ _tau_embedding_emu.toModify(
 )
 
 # This modifier sets the correct cuts for the taus decaying into two jets
-_tau_embedding_tauhtauh.toModify(
+tau_embedding_tauhtauh.toModify(
     generator,
     HepMCFilter={
         "filterParameters": {

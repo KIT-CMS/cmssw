@@ -20,6 +20,6 @@ phase2_muon.toModify(rpcRecHits, rpcDigiLabel = 'simMuonRPCDigis')
 ##
 ## Modify for the tau embedding methods cleaning step
 ##
-from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
 from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_rpcRecHits_cleaner
-tau_embedding.toReplaceWith(rpcRecHits, tau_embedding_rpcRecHits_cleaner)
+tau_embedding_cleaning.toReplaceWith(rpcRecHits, tau_embedding_rpcRecHits_cleaner)

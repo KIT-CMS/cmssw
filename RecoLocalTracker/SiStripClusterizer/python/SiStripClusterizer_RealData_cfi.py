@@ -14,6 +14,6 @@ approxSiStripClusters.toReplaceWith(siStripClusters,SiStripApprox2Clusters)
 ##
 ## Modify for the tau embedding methods cleaning step
 ##
-from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
 from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_siStripClusters_cleaner
-tau_embedding.toReplaceWith(siStripClusters, tau_embedding_siStripClusters_cleaner)
+tau_embedding_cleaning.toReplaceWith(siStripClusters, tau_embedding_siStripClusters_cleaner)

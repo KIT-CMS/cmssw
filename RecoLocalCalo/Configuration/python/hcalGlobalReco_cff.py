@@ -42,6 +42,6 @@ alpaka.toReplaceWith(hcalOnlyGlobalRecoTask, hcalOnlyGlobalRecoTask.copyAndAdd(h
 ##
 ## Modify for the tau embedding methods cleaning step
 ##
-from Configuration.ProcessModifiers.tau_embedding_cff import tau_embedding
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
 from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_hbhereco_cleaner
-tau_embedding.toReplaceWith(hbhereco.cpu, tau_embedding_hbhereco_cleaner)
+tau_embedding_cleaning.toReplaceWith(hbhereco.cpu, tau_embedding_hbhereco_cleaner)

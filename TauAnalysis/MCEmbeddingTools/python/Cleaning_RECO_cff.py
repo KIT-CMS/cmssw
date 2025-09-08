@@ -4,13 +4,13 @@ It's normally used together with the LHE step.
 To use this config fragment, a cmsDriver command like the following can be used:
 ```
 cmsDriver.py \
-	--step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO:TauAnalysis/MCEmbeddingTools/Cleaning_RECO_cff.reconstruction \
+	--step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO \
 	--processName LHEembeddingCLEAN \
 	--data \
 	--scenario pp \
 	--eventcontent TauEmbeddingCleaning \
 	--datatier RAWRECO \
-	--procModifiers tau_embedding_mu_to_mu \
+	--procModifiers tau_embedding_cleaning,tau_embedding_mu_to_mu \
     --era ... \
     --conditions ... \
     --filein ... \
