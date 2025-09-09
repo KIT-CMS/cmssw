@@ -339,3 +339,9 @@ splitClustersInPhase2Pixel.toModify(siPixelClusters,
 from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
 from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_siPixelClusters_cleaner
 tau_embedding_cleaning.toReplaceWith(siPixelClusters, tau_embedding_siPixelClusters_cleaner)
+##
+## Modify for the tau embedding methods reco sim step
+##
+from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
+from TauAnalysis.MCEmbeddingTools.Simulation_RECO_cff import tau_embedding_correct_hlt_vertices
+tau_embedding_sim.toReplaceWith(firstStepPrimaryVerticesPreSplitting, tau_embedding_correct_hlt_vertices)
