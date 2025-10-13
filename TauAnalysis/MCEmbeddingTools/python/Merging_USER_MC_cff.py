@@ -240,15 +240,15 @@ merge_step = cms.Sequence(
 # add more producers which are needed by the PAT step to the sequence
 from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 
-totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector", "", "HLT")
+tau_embedding_merging.toModify(totemRPRawToDigi, rawDataTag = cms.InputTag("rawDataCollector", "", "HLT"))
 merge_step += totemRPRawToDigi
 
 # produce local CT PPS reco
 from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
 
-ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector", "", "HLT")
-ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector", "", "HLT")
+tau_embedding_merging.toModify(ctppsDiamondRawToDigi, rawDataTag = cms.InputTag("rawDataCollector", "", "HLT"))
+tau_embedding_merging.toModify(ctppsPixelDigis, inputLabel = cms.InputTag("rawDataCollector", "", "HLT"))
 merge_step += ctppsDiamondRawToDigi + ctppsPixelDigis
 
 from RecoPPS.Configuration.recoCTPPS_cff import recoCTPPSTask
