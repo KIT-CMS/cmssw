@@ -32,10 +32,6 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
@@ -54,8 +50,6 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::CompositeCandidate>> ZmumuCandidates_;
-  edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
-  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> theMETLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> thePuppiMETLabel_;
 };
@@ -74,35 +68,11 @@ private:
 MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet &iConfig)
     : ZmumuCandidates_(consumes<edm::View<reco::CompositeCandidate>>(
           iConfig.getParameter<edm::InputTag>("ZmumuCandidatesCollection"))) {
-  produces<edm::RefVector<pat::MuonCollection>>();
-  produces<float>("ptLeadingMuon");
-  produces<float>("ptTrailingMuon");
-  produces<float>("etaLeadingMuon");
-  produces<float>("etaTrailingMuon");
-  produces<float>("phiLeadingMuon");
-  produces<float>("phiTrailingMuon");
-  produces<float>("chargeLeadingMuon");
-  produces<float>("chargeTrailingMuon");
-  produces<float>("dbLeadingMuon");
-  produces<float>("dbTrailingMuon");
-  produces<float>("massLeadingMuon");
-  produces<float>("massTrailingMuon");
-  produces<float>("vtxxLeadingMuon");
-  produces<float>("vtxyLeadingMuon");
-  produces<float>("vtxzLeadingMuon");
-  produces<float>("vtxxTrailingMuon");
-  produces<float>("vtxyTrailingMuon");
-  produces<float>("vtxzTrailingMuon");
-  produces<bool>("isMediumLeadingMuon");
-  produces<bool>("isTightLeadingMuon");
-  produces<bool>("isMediumTrailingMuon");
-  produces<bool>("isTightTrailingMuon");
+  produces<pat::MuonCollection>();
   produces<float>("initialMETEt");
   produces<float>("initialMETphi");
   produces<float>("initialPuppiMETEt");
   produces<float>("initialPuppiMETphi");
-  theVertexLabel_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputTagVertex"));
-  theBeamSpotLabel_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("inputTagBeamSpot"));
   theMETLabel_ = consumes<edm::View<pat::MET>>(iConfig.getParameter<edm::InputTag>("Met"));
   thePuppiMETLabel_ = consumes<edm::View<pat::MET>>(iConfig.getParameter<edm::InputTag>("PuppiMet"));
   // now do what ever other initialization is needed
@@ -119,26 +89,10 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   iEvent.getByToken(ZmumuCandidates_, ZmumuCandidatesHandle);
   edm::View<reco::CompositeCandidate> ZmumuCandidates = *ZmumuCandidatesHandle;
   const reco::CompositeCandidate *chosenZCand = nullptr;
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByToken(theBeamSpotLabel_, beamSpot);
-  edm::Handle<reco::VertexCollection> vertex;
-  iEvent.getByToken(theVertexLabel_, vertex);
   edm::Handle<edm::View<pat::MET>> met;
   iEvent.getByToken(theMETLabel_, met);
   edm::Handle<edm::View<pat::MET>> puppimet;
   iEvent.getByToken(thePuppiMETLabel_, puppimet);
-  // get primary vertex
-  reco::Vertex::Point posVtx;
-  reco::Vertex::Error errVtx;
-  for (const auto &vtx : *vertex) {
-    if (vtx.isValid() && !vtx.isFake()) {
-      posVtx = vtx.position();
-      errVtx = vtx.error();
-      break;
-    }
-  }
-  reco::Vertex primaryVertex(posVtx, errVtx);
-
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
        ++iZCand) {
@@ -154,34 +108,12 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   const auto &daughter0 = chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>();
   const auto &daughter1 = chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>();
 
-  std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod(new edm::RefVector<pat::MuonCollection>());
+  auto prod = std::make_unique<pat::MuonCollection>();
   prod->reserve(2);
-  prod->push_back(daughter0);
-  prod->push_back(daughter1);
+  prod->push_back(*daughter0);
+  prod->push_back(*daughter1);
   iEvent.put(std::move(prod));
 
-  iEvent.put(std::make_unique<float>(daughter0->pt()), "ptLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->pt()), "ptTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->eta()), "etaLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->eta()), "etaTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->phi()), "phiLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->phi()), "phiTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->charge()), "chargeLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->charge()), "chargeTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->dB()), "dbLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->dB()), "dbTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->mass()), "massLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->mass()), "massTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->vertex().x()), "vtxxLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->vertex().y()), "vtxyLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter0->vertex().z()), "vtxzLeadingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->vertex().x()), "vtxxTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->vertex().y()), "vtxyTrailingMuon");
-  iEvent.put(std::make_unique<float>(daughter1->vertex().z()), "vtxzTrailingMuon");
-  iEvent.put(std::make_unique<bool>(daughter0->isMediumMuon()), "isMediumLeadingMuon");
-  iEvent.put(std::make_unique<bool>(daughter0->isTightMuon(primaryVertex)), "isTightLeadingMuon");
-  iEvent.put(std::make_unique<bool>(daughter1->isMediumMuon()), "isMediumTrailingMuon");
-  iEvent.put(std::make_unique<bool>(daughter1->isTightMuon(primaryVertex)), "isTightTrailingMuon");
   iEvent.put(std::make_unique<float>(met->at(0).et()), "initialMETEt");
   iEvent.put(std::make_unique<float>(met->at(0).phi()), "initialMETphi");
   iEvent.put(std::make_unique<float>(puppimet->at(0).et()), "initialPuppiMETEt");

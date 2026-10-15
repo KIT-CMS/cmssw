@@ -86,8 +86,6 @@ ZmumuCandidatesFilter = cms.EDFilter("CandViewCountFilter",
 # where the Z->mumu candidate mass is the highest.
 selectedMuonsForEmbedding = cms.EDProducer("MuMuForEmbeddingSelector",
     ZmumuCandidatesCollection = cms.InputTag("ZmumuCandidates"),
-    inputTagVertex = cms.InputTag("offlinePrimaryVertices"),
-    inputTagBeamSpot = cms.InputTag("offlineBeamSpot"),
     PuppiMet = cms.InputTag("slimmedMETsPuppi", "", "SELECT"),
     Met = cms.InputTag("slimmedMETs", "", "SELECT"),
 )

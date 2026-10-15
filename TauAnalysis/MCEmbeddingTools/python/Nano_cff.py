@@ -23,7 +23,27 @@ cmsDriver.py \
 """
 
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.NanoAOD.common_cff import ExtVar
+from PhysicsTools.NanoAOD.common_cff import ExtVar, Var
+
+# Keep the selected muons as rows in their own table. Their four-momenta and
+# other properties are read directly from the persisted pat::Muon objects.
+embeddingMuonTable = cms.EDProducer(
+    "SimplePATMuonFlatTableProducer",
+    src=cms.InputTag("selectedMuonsForEmbedding"),
+    cut=cms.string(""),
+    name=cms.string("TauEmbeddingMuon"),
+    doc=cms.string("Muons selected for embedding"),
+    singleton=cms.bool(False),
+    extension=cms.bool(False),
+    variables=cms.PSet(
+        pt=Var("pt", float, doc="muon transverse momentum", precision=10),
+        eta=Var("eta", float, doc="muon pseudorapidity", precision=10),
+        phi=Var("phi", float, doc="muon azimuthal angle", precision=10),
+        mass=Var("mass", float, doc="muon mass", precision=10),
+        charge=Var("charge", int, doc="muon charge"),
+        dB=Var("dB()", float, doc="muon impact parameter"),
+    ),
+)
 
 # This table producer adds information about the initially selected muons and the initial event to the NanoAOD.
 # The information comes from the `selectedMuonsForEmbedding` producer, which is created in the selection step.
@@ -32,116 +52,6 @@ embeddingTable = cms.EDProducer(
     name=cms.string("TauEmbedding"),
     # doc=cms.string("TauEmbedding"),
     variables=cms.PSet(
-        ptLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "ptLeadingMuon"),
-            float,
-            doc="leading muon pt",
-        ),
-        ptTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "ptTrailingMuon"),
-            float,
-            doc="trailing muon pt",
-        ),
-        etaLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "etaLeadingMuon"),
-            float,
-            doc="leading muon eta",
-        ),
-        etaTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "etaTrailingMuon"),
-            float,
-            doc="trailing muon eta",
-        ),
-        phiLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "phiLeadingMuon"),
-            float,
-            doc="leading muon phi",
-        ),
-        phiTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "phiTrailingMuon"),
-            float,
-            doc="trailing muon phi",
-        ),
-        chargeLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "chargeLeadingMuon"),
-            float,
-            doc="leading muon charge",
-        ),
-        chargeTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "chargeTrailingMuon"),
-            float,
-            doc="trailing muon charge",
-        ),
-        dbLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "dbLeadingMuon"),
-            float,
-            doc="leading muon DB",
-        ),
-        dbTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "dbTrailingMuon"),
-            float,
-            doc="trailing muon DB",
-        ),
-        massLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "massLeadingMuon"),
-            float,
-            doc="leading muon mass",
-        ),
-        massTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "massTrailingMuon"),
-            float,
-            doc="trailing muon mass",
-        ),
-        vtxXLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "vtxxLeadingMuon"),
-            float,
-            doc="leading muon vertex X",
-        ),
-        vtxYLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "vtxyLeadingMuon"),
-            float,
-            doc="leading muon vertex Y",
-        ),
-        vtxZLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "vtxzLeadingMuon"),
-            float,
-            doc="leading muon vertex Z",
-        ),
-        vtxXTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "vtxxTrailingMuon"),
-            float,
-            doc="trailing muon vertex X",
-        ),
-        vtxYTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "vtxyTrailingMuon"),
-            float,
-            doc="trailing muon vertex Y",
-        ),
-        vtxZTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "vtxzTrailingMuon"),
-            float,
-            doc="trailing muon vertex Z",
-        ),
-        isMediumLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "isMediumLeadingMuon"),
-            bool,
-            doc="leading muon ID (medium)",
-        ),
-        isMediumTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "isMediumTrailingMuon"),
-            bool,
-            doc="trailing muon ID (medium)",
-        ),
-        isTightLeadingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "isTightLeadingMuon"),
-            bool,
-            doc="leading muon ID (tight)",
-        ),
-        isTightTrailingMuon=ExtVar(
-            cms.InputTag("selectedMuonsForEmbedding", "isTightTrailingMuon"),
-            bool,
-            doc="trailing muon ID (tight)",
-        ),
         initialMETEt=ExtVar(
             cms.InputTag("selectedMuonsForEmbedding", "initialMETEt"),
             float,
@@ -165,5 +75,5 @@ embeddingTable = cms.EDProducer(
     ),
 )
 # put all sequences and tasks together to create the embedding NanoAOD sequence
-embeddingTableTask = cms.Task(embeddingTable)
+embeddingTableTask = cms.Task(embeddingMuonTable, embeddingTable)
 embeddingTable_seq = cms.Sequence(embeddingTableTask)
