@@ -68,7 +68,9 @@ private:
 MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet &iConfig)
     : ZmumuCandidates_(consumes<edm::View<reco::CompositeCandidate>>(
           iConfig.getParameter<edm::InputTag>("ZmumuCandidatesCollection"))) {
-  produces<pat::MuonCollection>();
+  produces<edm::RefVector<pat::MuonCollection>>();
+  // Keep references to the selected PAT muons. The source collection must be
+  // retained through merging for the NanoAOD table to dereference these refs.
   produces<float>("initialMETEt");
   produces<float>("initialMETphi");
   produces<float>("initialPuppiMETEt");
@@ -78,7 +80,7 @@ MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet &iCon
   // now do what ever other initialization is needed
 }
 
-//
+// 
 // member functions
 //
 
@@ -108,10 +110,10 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   const auto &daughter0 = chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>();
   const auto &daughter1 = chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>();
 
-  auto prod = std::make_unique<pat::MuonCollection>();
+  std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod(new edm::RefVector<pat::MuonCollection>());
   prod->reserve(2);
-  prod->push_back(*daughter0);
-  prod->push_back(*daughter1);
+  prod->push_back(daughter0);
+  prod->push_back(daughter1);
   iEvent.put(std::move(prod));
 
   iEvent.put(std::make_unique<float>(met->at(0).et()), "initialMETEt");

@@ -23,25 +23,28 @@ cmsDriver.py \
 """
 
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.NanoAOD.common_cff import ExtVar, Var
+from PhysicsTools.NanoAOD.common_cff import CandVars, ExtVar, Var
+from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuonFlatTableProducer
 
-# Keep the selected muons as rows in their own table. Their four-momenta and
-# other properties are read directly from the persisted pat::Muon objects.
-embeddingMuonTable = cms.EDProducer(
-    "SimplePATMuonFlatTableProducer",
+# Preserve the two selected muons as rows, with their complete four-vectors
+# and standard identification flags, instead of duplicating their properties
+# as leading/trailing event-level float products.
+embeddingMuonTable = simplePATMuonFlatTableProducer.clone(
     src=cms.InputTag("selectedMuonsForEmbedding"),
-    cut=cms.string(""),
     name=cms.string("TauEmbeddingMuon"),
-    doc=cms.string("Muons selected for embedding"),
-    singleton=cms.bool(False),
-    extension=cms.bool(False),
+    doc=cms.string("Muons selected in the original event for embedding"),
     variables=cms.PSet(
-        pt=Var("pt", float, doc="muon transverse momentum", precision=10),
-        eta=Var("eta", float, doc="muon pseudorapidity", precision=10),
-        phi=Var("phi", float, doc="muon azimuthal angle", precision=10),
-        mass=Var("mass", float, doc="muon mass", precision=10),
-        charge=Var("charge", int, doc="muon charge"),
-        dB=Var("dB()", float, doc="muon impact parameter"),
+        CandVars,
+        dB=Var("dB()", float, doc="transverse impact parameter"),
+        vx=Var("vx", float, doc="x coordinate of the muon vertex"),
+        vy=Var("vy", float, doc="y coordinate of the muon vertex"),
+        vz=Var("vz", float, doc="z coordinate of the muon vertex"),
+        tightId=Var("passed('CutBasedIdTight')", bool, doc="tight muon ID"),
+        # looseId=Var("passed('CutBasedIdLoose')", bool, doc="loose muon ID"),
+        # mediumId=Var("isMediumMuon", bool, doc="medium muon ID"),
+        # isPFcand=Var("isPFMuon", bool, doc="muon is a PF muon"),
+        # isGlobal=Var("isGlobalMuon", bool, doc="muon is a global muon"),
+        # isTracker=Var("isTrackerMuon", bool, doc="muon is a tracker muon"),
     ),
 )
 

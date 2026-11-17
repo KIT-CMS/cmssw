@@ -1,7 +1,7 @@
 """
 This config fragment filters for a muon pair which can be used for tau embedding.
 It selects muons based on trigger conditions, kinematic cuts, and identification criteria.
-It then produces a collection of muons suitable for embedding (selectedMuonsForEmbedding), including their kinematic properties.
+It then produces references to the selected PAT muons suitable for embedding (selectedMuonsForEmbedding).
 This is then later used in the LHE step to simulate two taus with slightly adjusted kinematics.
 To use this config fragment, a cmsDriver command like the following can be used:
 ```

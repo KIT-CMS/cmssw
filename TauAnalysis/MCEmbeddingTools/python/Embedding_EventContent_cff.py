@@ -173,6 +173,7 @@ TauEmbMerge = cms.PSet(
         'keep *_generator_*_SIMembeddingHLT',
         'keep *_generator_*_SIMembedding',
         'keep *_selectedMuonsForEmbedding_*_*',
+        'keep *_patMuonsAfterID_*_SELECT',
         'keep *_unpackedPatTrigger_*_*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
